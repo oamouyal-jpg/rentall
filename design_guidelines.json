@@ -1,0 +1,154 @@
+{
+  "identity": {
+    "name": "RentAll",
+    "persona": "E1 - The Anti-AI Designer",
+    "tone": "Trustworthy, Community-Driven, Tactile, Modern",
+    "theme_preference": "light",
+    "design_principles": [
+      "Fusion over Imitation: Mix Airbnb cleanliness with Pinterest discovery.",
+      "Emotion First: Every interaction builds trust.",
+      "Content is King: Photos of items are the heroes.",
+      "Zoom In: High-fidelity details of rental items.",
+      "Negative Space: Generous padding to prevent clutter."
+    ]
+  },
+  "typography": {
+    "font_family": {
+      "headings": "Plus Jakarta Sans, sans-serif",
+      "body": "Inter, sans-serif",
+      "mono": "JetBrains Mono, monospace"
+    },
+    "scale": {
+      "h1": "text-4xl md:text-6xl font-bold tracking-tight",
+      "h2": "text-3xl md:text-4xl font-semibold tracking-tight",
+      "h3": "text-2xl font-semibold",
+      "body": "text-base leading-relaxed text-stone-600",
+      "caption": "text-sm text-stone-500 uppercase tracking-wider"
+    },
+    "instructions": "Use Plus Jakarta Sans for all headings to give a friendly, geometric, modern feel. Use Inter for body text for maximum legibility. Avoid generic 'sans-serif' fallbacks without loading the fonts."
+  },
+  "colors": {
+    "palette": {
+      "primary": {
+        "DEFAULT": "#E05D44",
+        "foreground": "#FFFFFF",
+        "hover": "#C54E36"
+      },
+      "secondary": {
+        "DEFAULT": "#8DA399",
+        "foreground": "#FFFFFF",
+        "hover": "#768C82"
+      },
+      "background": "#FAFAF9",
+      "foreground": "#1C1917",
+      "muted": {
+        "DEFAULT": "#F5F5F4",
+        "foreground": "#78716C"
+      },
+      "accent": {
+        "DEFAULT": "#F0EBE9",
+        "foreground": "#1C1917"
+      },
+      "border": "#E7E5E4",
+      "input": "#E7E5E4",
+      "ring": "#E05D44"
+    },
+    "usage_rules": [
+      "Primary Color (Terracotta): Use ONLY for primary CTAs (Book Now, Search) and key brand moments.",
+      "Secondary Color (Sage): Use for trust indicators, success states, and verified badges.",
+      "Background: Use 'Stone 50' (#FAFAF9) instead of pure white for a warmer, more organic feel.",
+      "Text: Use 'Stone 900' (#1C1917) for headings and 'Stone 600' for body. Never pure black.",
+      "Borders: Subtle 'Stone 200' (#E7E5E4) for cards and dividers."
+    ]
+  },
+  "visual_enhancers": {
+    "radius": "rounded-2xl",
+    "shadows": {
+      "card": "shadow-[0_2px_8px_rgba(0,0,0,0.04)] hover:shadow-[0_8px_24px_rgba(0,0,0,0.08)] transition-shadow duration-300",
+      "floating": "shadow-[0_12px_32px_rgba(0,0,0,0.12)]"
+    },
+    "gradients": "None. Use solid colors and textures.",
+    "textures": "Subtle noise overlay on the background (opacity 0.02) to add tactility.",
+    "glassmorphism": "Use 'backdrop-blur-md bg-white/80 border border-white/20' for sticky headers and floating map controls."
+  },
+  "layout_strategies": {
+    "container": "max-w-7xl mx-auto px-4 sm:px-6 lg:px-8",
+    "spacing": "Generous. Use py-16 or py-24 for section spacing. Gap-6 or Gap-8 for grids.",
+    "grids": {
+      "bento": "grid grid-cols-1 md:grid-cols-4 gap-4 md:gap-6 auto-rows-[300px]",
+      "listings": "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6",
+      "detail": "grid grid-cols-1 lg:grid-cols-12 gap-12"
+    }
+  },
+  "components": {
+    "buttons": {
+      "primary": "bg-primary text-primary-foreground hover:bg-primary/90 h-12 px-8 rounded-full font-medium transition-all active:scale-95",
+      "secondary": "bg-white border border-stone-200 text-stone-900 hover:bg-stone-50 h-12 px-8 rounded-full font-medium transition-all"
+    },
+    "cards": {
+      "listing": "group relative bg-white rounded-2xl overflow-hidden border border-stone-100 hover:border-stone-300 transition-all",
+      "category": "relative overflow-hidden rounded-2xl bg-stone-100 hover:bg-stone-200 transition-colors cursor-pointer"
+    },
+    "inputs": "h-12 rounded-xl border-stone-200 bg-white px-4 focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all",
+    "map_marker": "bg-white text-stone-900 font-bold px-3 py-1 rounded-full shadow-lg border border-stone-200 hover:scale-110 transition-transform cursor-pointer"
+  },
+  "image_urls": {
+    "hero_background": {
+      "url": "https://images.unsplash.com/photo-1725042893312-5ec0dea9e369?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NjAzMzN8MHwxfHNlYXJjaHwxfHxtb2Rlcm4lMjBsaXZpbmclMjByb29tJTIwYnJpZ2h0fGVufDB8fHx8MTc3MDE2MjQ2NHww&ixlib=rb-4.1.0&q=85",
+      "description": "Bright modern living room for hero section background",
+      "category": "hero"
+    },
+    "categories": [
+      {
+        "name": "Instruments",
+        "url": "https://images.unsplash.com/photo-1648891216202-c26fed5e5d85?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NTYxODh8MHwxfHNlYXJjaHwxfHxlbGVjdHJpYyUyMGd1aXRhciUyMG9uJTIwc3RhbmR8ZW58MHx8fHwxNzcwMTYyNDMxfDA&ixlib=rb-4.1.0&q=85",
+        "description": "Electric guitar on stand"
+      },
+      {
+        "name": "Tools",
+        "url": "https://images.unsplash.com/photo-1658845345529-0a6b4f2fa0b0?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NjA2MDV8MHwxfHNlYXJjaHwxfHxwb3dlciUyMGRyaWxsJTIwb24lMjB3b3JrYmVuY2h8ZW58MHx8fHwxNzcwMTYyNDM2fDA&ixlib=rb-4.1.0&q=85",
+        "description": "Power drill on workbench"
+      },
+      {
+        "name": "Party",
+        "url": "https://images.unsplash.com/photo-1653569397345-762ee0f4579e?crop=entropy&cs=srgb&fm=jpg&ixid=M3w3NDQ2MzR8MHwxfHNlYXJjaHwxfHxkaiUyMGNvbnRyb2xsZXIlMjBwYXJ0eSUyMGxpZ2h0c3xlbnwwfHx8fDE3NzAxNjI0NDB8MA&ixlib=rb-4.1.0&q=85",
+        "description": "DJ Controller with lights"
+      },
+      {
+        "name": "Outdoors",
+        "url": "https://images.unsplash.com/photo-1633803504744-1b8a284cd3cc?crop=entropy&cs=srgb&fm=jpg&ixid=M3w3NDk1NzZ8MHwxfHNlYXJjaHwxfHxjYW1waW5nJTIwdGVudCUyMGluJTIwZm9yZXN0fGVufDB8fHx8MTc3MDE2MjQ0NXww&ixlib=rb-4.1.0&q=85",
+        "description": "Camping tent in forest"
+      },
+      {
+        "name": "Electronics",
+        "url": "https://images.unsplash.com/photo-1623266997167-bf4d92ef42fa?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NTYxNzV8MHwxfHNlYXJjaHwxfHxkc2xyJTIwY2FtZXJhJTIwbGVucyUyMGtpdHxlbnwwfHx8fDE3NzAxNjI0NDl8MA&ixlib=rb-4.1.0&q=85",
+        "description": "DSLR Camera kit"
+      }
+    ],
+    "community": {
+      "url": "https://images.pexels.com/photos/6646884/pexels-photo-6646884.jpeg",
+      "description": "Neighbors sharing items, building trust",
+      "category": "trust_section"
+    }
+  },
+  "motion": {
+    "transitions": "transition-all duration-300 ease-out",
+    "hover_effects": "hover:-translate-y-1 hover:shadow-lg",
+    "page_load": "animate-in fade-in slide-in-from-bottom-4 duration-700"
+  },
+  "accessibility": {
+    "contrast": "Ensure all text meets WCAG AA standards. Use Stone-600 or darker on Stone-50 backgrounds.",
+    "focus_states": "Visible focus rings using the primary color.",
+    "aria": "All interactive elements must have aria-labels if no text is present."
+  },
+  "universal_guidelines": [
+    "Do not use generic centered layouts. Use asymmetry.",
+    "Use 'sonner' for toasts.",
+    "Use 'lucide-react' for icons.",
+    "All interactive elements MUST include 'data-testid'.",
+    "Do not use 'transition: all'. Specify properties.",
+    "Use 'Plus Jakarta Sans' for headings and 'Inter' for body.",
+    "Primary color is Terracotta (#E05D44).",
+    "Background is Stone-50 (#FAFAF9)."
+  ]
+}
