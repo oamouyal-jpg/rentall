@@ -133,10 +133,29 @@
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
     transition: transform 0.2s ease;
     cursor: pointer;
+    font-size: 13px;
 }
 
 .map-marker:hover {
     transform: scale(1.1);
+}
+
+/* Map popup styles */
+.mapboxgl-popup-content {
+    padding: 12px !important;
+    border-radius: 12px !important;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15) !important;
+}
+
+.mapboxgl-popup-close-button {
+    font-size: 18px;
+    padding: 4px 8px;
+    color: #78716c;
+}
+
+.mapboxgl-popup-close-button:hover {
+    color: #1c1917;
+    background: transparent;
 }
 
 /* Calendar day hover */
