@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { toast } from 'sonner';
 import { useAuth } from '../context/AuthContext';
-import { authAPI, verificationAPI, payoutsAPI } from '../lib/api';
+import { authAPI, verificationAPI, payoutsAPI, stripeConnectAPI } from '../lib/api';
 import { Button } from '../components/ui/button';
 import { Input } from '../components/ui/input';
 import { Label } from '../components/ui/label';
@@ -16,18 +16,24 @@ import {
   DollarSign,
   User,
   MapPin,
-  Send
+  Send,
+  CreditCard,
+  ExternalLink,
+  AlertCircle
 } from 'lucide-react';
 import { formatPrice } from '../lib/utils';
 
 export default function SettingsPage() {
   const { user, loading: authLoading, updateUser } = useAuth();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
 
   const [saving, setSaving] = useState(false);
   const [sendingCode, setSendingCode] = useState(false);
   const [verifying, setVerifying] = useState(false);
+  const [connectingStripe, setConnectingStripe] = useState(false);
   const [payoutSummary, setPayoutSummary] = useState(null);
+  const [stripeStatus, setStripeStatus] = useState(null);
 
   // Profile form
   const [name, setName] = useState('');
@@ -46,6 +52,25 @@ export default function SettingsPage() {
   }, [user, authLoading, navigate]);
 
   useEffect(() => {
+    // Check for Stripe Connect return
+    if (searchParams.get('success') === 'true') {
+      toast.success('Stripe account connected!');
+      fetchStripeStatus();
+    } else if (searchParams.get('refresh') === 'true') {
+      toast.info('Please complete your Stripe account setup');
+    }
+  }, [searchParams]);
+
+  const fetchStripeStatus = async () => {
+    try {
+      const res = await stripeConnectAPI.getStatus();
+      setStripeStatus(res.data);
+    } catch (err) {
+      console.error('Failed to fetch Stripe status:', err);
+    }
+  };
+
+  useEffect(() => {
     if (user) {
       setName(user.name || '');
       setLocation(user.location || '');
@@ -56,6 +81,9 @@ export default function SettingsPage() {
       payoutsAPI.getSummary()
         .then(res => setPayoutSummary(res.data))
         .catch(err => console.error('Failed to fetch payout summary:', err));
+
+      // Fetch Stripe Connect status
+      fetchStripeStatus();
     }
   }, [user]);
 
@@ -115,6 +143,28 @@ export default function SettingsPage() {
     }
   };
 
+  const handleConnectStripe = async () => {
+    setConnectingStripe(true);
+    try {
+      const res = await stripeConnectAPI.createAccount(window.location.href.split('?')[0]);
+      window.location.href = res.data.url;
+    } catch (error) {
+      console.error('Stripe Connect error:', error);
+      toast.error(error.response?.data?.detail || 'Failed to connect Stripe');
+      setConnectingStripe(false);
+    }
+  };
+
+  const handleOpenStripeDashboard = async () => {
+    try {
+      const res = await stripeConnectAPI.getDashboardLink();
+      window.open(res.data.url, '_blank');
+    } catch (error) {
+      console.error('Stripe dashboard error:', error);
+      toast.error('Failed to open Stripe dashboard');
+    }
+  };
+
   if (authLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -131,6 +181,67 @@ export default function SettingsPage() {
         <h1 className="text-2xl md:text-3xl font-bold text-stone-900 mb-8 font-heading">
           Account Settings
         </h1>
+
+        {/* Stripe Connect - Most Important for Owners */}
+        <div className="bg-gradient-to-br from-[#635BFF]/10 to-[#635BFF]/5 rounded-2xl border border-[#635BFF]/20 p-6 mb-6">
+          <h2 className="text-lg font-semibold text-stone-900 mb-2 font-heading flex items-center gap-2">
+            <CreditCard className="h-5 w-5 text-[#635BFF]" />
+            Get Paid Automatically
+          </h2>
+          <p className="text-stone-600 text-sm mb-4">
+            Connect your Stripe account to receive 95% of each rental directly. No more waiting for manual payouts!
+          </p>
+
+          {stripeStatus?.connected ? (
+            <div className="space-y-3">
+              <div className="flex items-center gap-2 text-green-600 bg-green-50 p-3 rounded-xl">
+                <CheckCircle className="h-5 w-5" />
+                <span className="font-medium">Stripe Connected - Auto-payouts enabled!</span>
+              </div>
+              <Button
+                variant="outline"
+                onClick={handleOpenStripeDashboard}
+                className="w-full rounded-xl"
+              >
+                <ExternalLink className="h-4 w-4 mr-2" />
+                Open Stripe Dashboard
+              </Button>
+            </div>
+          ) : stripeStatus?.details_submitted === false && stripeStatus?.account_id ? (
+            <div className="space-y-3">
+              <div className="flex items-center gap-2 text-amber-600 bg-amber-50 p-3 rounded-xl">
+                <AlertCircle className="h-5 w-5" />
+                <span className="font-medium">Please complete your Stripe account setup</span>
+              </div>
+              <Button
+                onClick={handleConnectStripe}
+                disabled={connectingStripe}
+                className="w-full rounded-xl bg-[#635BFF] hover:bg-[#5851DB]"
+              >
+                {connectingStripe ? (
+                  <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                ) : (
+                  <CreditCard className="h-4 w-4 mr-2" />
+                )}
+                Complete Stripe Setup
+              </Button>
+            </div>
+          ) : (
+            <Button
+              onClick={handleConnectStripe}
+              disabled={connectingStripe}
+              className="w-full rounded-xl bg-[#635BFF] hover:bg-[#5851DB]"
+              data-testid="connect-stripe-btn"
+            >
+              {connectingStripe ? (
+                <Loader2 className="h-4 w-4 animate-spin mr-2" />
+              ) : (
+                <CreditCard className="h-4 w-4 mr-2" />
+              )}
+              Connect Stripe Account
+            </Button>
+          )}
+        </div>
 
         {/* Verification Status */}
         <div className="bg-white rounded-2xl border border-stone-200 p-6 mb-6">
@@ -159,6 +270,28 @@ export default function SettingsPage() {
                 </Badge>
               ) : (
                 <Badge className="bg-stone-100 text-stone-600">Not verified</Badge>
+              )}
+            </div>
+
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className={`w-10 h-10 rounded-full flex items-center justify-center ${stripeStatus?.connected ? 'bg-green-100' : 'bg-stone-100'}`}>
+                  <CreditCard className={`h-5 w-5 ${stripeStatus?.connected ? 'text-green-600' : 'text-stone-400'}`} />
+                </div>
+                <div>
+                  <p className="font-medium text-stone-900">Payment Account</p>
+                  <p className="text-sm text-stone-500">
+                    {stripeStatus?.connected ? 'Connected to Stripe' : 'Not connected'}
+                  </p>
+                </div>
+              </div>
+              {stripeStatus?.connected ? (
+                <Badge className="bg-green-100 text-green-700">
+                  <CheckCircle className="h-3 w-3 mr-1" />
+                  Connected
+                </Badge>
+              ) : (
+                <Badge className="bg-stone-100 text-stone-600">Not connected</Badge>
               )}
             </div>
           </div>
@@ -273,7 +406,7 @@ export default function SettingsPage() {
                 <p className="text-2xl font-bold text-green-600">
                   {formatPrice(payoutSummary.pending_payout)}
                 </p>
-                <p className="text-sm text-stone-500">Pending Payout</p>
+                <p className="text-sm text-stone-500">Pending</p>
               </div>
               <div className="text-center p-4 bg-stone-50 rounded-xl">
                 <p className="text-2xl font-bold text-stone-900">
@@ -283,20 +416,11 @@ export default function SettingsPage() {
               </div>
             </div>
 
-            {payoutSummary.pending_payout >= 10 && (
-              <Button
-                className="w-full mt-4 rounded-xl bg-[#E05D44] hover:bg-[#C54E36]"
-                onClick={async () => {
-                  try {
-                    await payoutsAPI.requestPayout();
-                    toast.success('Payout request submitted!');
-                  } catch (err) {
-                    toast.error(err.response?.data?.detail || 'Failed to request payout');
-                  }
-                }}
-              >
-                Request Payout
-              </Button>
+            {!stripeStatus?.connected && payoutSummary.pending_payout > 0 && (
+              <p className="text-sm text-amber-600 mt-4 flex items-center gap-2">
+                <AlertCircle className="h-4 w-4" />
+                Connect Stripe above to receive automatic payouts
+              </p>
             )}
           </div>
         )}
