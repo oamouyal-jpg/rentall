@@ -74,6 +74,9 @@ class ListingBase(BaseModel):
     latitude: float
     longitude: float
     images: List[str] = []
+    damage_deposit: Optional[float] = 0.0
+    min_rental_days: int = 1
+    max_rental_days: int = 30
     
 class ListingCreate(ListingBase):
     pass
@@ -84,6 +87,7 @@ class ListingResponse(ListingBase):
     owner_id: str
     owner_name: str
     owner_avatar: Optional[str] = None
+    owner_verified: bool = False
     created_at: str
     avg_rating: float = 0.0
     review_count: int = 0
