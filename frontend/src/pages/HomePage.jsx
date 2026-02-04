@@ -152,7 +152,7 @@ export default function HomePage() {
                 Browse by category
               </h2>
               <p className="text-stone-600 mt-2">
-                Find exactly what you're looking for
+                Over 30 categories — from cars to tradies to party gear
               </p>
             </div>
             <Link 
@@ -163,10 +163,22 @@ export default function HomePage() {
             </Link>
           </div>
 
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
-            {categories.slice(0, 5).map((category) => (
-              <CategoryCard key={category.id} category={category} />
-            ))}
+          {/* Featured Categories Grid */}
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-8">
+            {['cars', 'heavy-machinery', 'tradies', 'tools', 'party', 'camping'].map((catId) => {
+              const cat = categories.find(c => c.id === catId);
+              return cat ? <CategoryCard key={cat.id} category={cat} /> : null;
+            })}
+          </div>
+
+          {/* More Categories - Compact */}
+          <div className="bg-white rounded-2xl border border-stone-100 p-6">
+            <h3 className="font-semibold text-stone-900 mb-4 font-heading">More categories</h3>
+            <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8 gap-3">
+              {categories.filter(c => !['cars', 'heavy-machinery', 'tradies', 'tools', 'party', 'camping'].includes(c.id)).slice(0, 16).map((cat) => (
+                <CategoryCard key={cat.id} category={cat} variant="compact" />
+              ))}
+            </div>
           </div>
 
           {/* Mobile view all link */}
