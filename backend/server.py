@@ -405,6 +405,7 @@ async def create_listing(
         "owner_id": current_user["id"],
         "owner_name": current_user["name"],
         "owner_avatar": current_user.get("avatar_url"),
+        "owner_verified": current_user.get("phone_verified", False),
         **listing_data.model_dump(),
         "created_at": datetime.now(timezone.utc).isoformat(),
         "avg_rating": 0.0,
