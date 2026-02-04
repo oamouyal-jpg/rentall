@@ -88,6 +88,12 @@ export const payoutsAPI = {
   requestPayout: () => api.post('/payouts/request'),
 };
 
+// Phone Verification API
+export const verificationAPI = {
+  sendPhoneCode: (phone_number) => api.post('/auth/phone/send-code', { phone_number }),
+  verifyPhoneCode: (phone_number, code) => api.post('/auth/phone/verify', { phone_number, code }),
+};
+
 // Upload API
 export const uploadAPI = {
   uploadImage: (data) => api.post('/upload/image', data),
