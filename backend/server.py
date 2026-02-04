@@ -1041,26 +1041,6 @@ async def get_payment_status(
     except stripe.error.StripeError as e:
         logging.error(f"Stripe status error: {e}")
         raise HTTPException(status_code=400, detail=str(e))
-        
-        await db.bookings.update_one(
-            {"id": transaction["booking_id"]},
-            {"$set": {"status": "paid"}}
-        )
-    elif checkout_status.status == "expired":
-        await db.payment_transactions.update_one(
-            {"session_id": session_id},
-            {"$set": {
-                "status": "expired",
-                "payment_status": "expired"
-            }}
-        )
-    
-    return {
-        "status": checkout_status.status,
-        "payment_status": checkout_status.payment_status,
-        "amount": checkout_status.amount_total / 100,  # Convert cents to dollars
-        "currency": checkout_status.currency
-    }
 
 @api_router.post("/webhook/stripe")
 async def stripe_webhook(request: Request):
