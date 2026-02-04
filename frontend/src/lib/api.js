@@ -94,6 +94,13 @@ export const verificationAPI = {
   verifyPhoneCode: (phone_number, code) => api.post('/auth/phone/verify', { phone_number, code }),
 };
 
+// Stripe Connect API
+export const stripeConnectAPI = {
+  createAccount: (return_url) => api.post('/stripe/connect/create-account', { return_url }),
+  getStatus: () => api.get('/stripe/connect/status'),
+  getDashboardLink: () => api.get('/stripe/connect/dashboard'),
+};
+
 // Upload API
 export const uploadAPI = {
   uploadImage: (data) => api.post('/upload/image', data),
