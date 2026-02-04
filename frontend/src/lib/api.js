@@ -81,6 +81,18 @@ export const paymentsAPI = {
   getStatus: (sessionId) => api.get(`/payments/status/${sessionId}`),
 };
 
+// Payouts API
+export const payoutsAPI = {
+  getMy: () => api.get('/payouts/my'),
+  getSummary: () => api.get('/payouts/summary'),
+  requestPayout: () => api.post('/payouts/request'),
+};
+
+// Upload API
+export const uploadAPI = {
+  uploadImage: (data) => api.post('/upload/image', data),
+};
+
 // Categories API
 export const categoriesAPI = {
   getAll: () => api.get('/categories'),
