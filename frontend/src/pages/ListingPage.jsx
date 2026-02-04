@@ -16,6 +16,7 @@ import {
   DialogTrigger,
 } from '../components/ui/dialog';
 import ReviewCard from '../components/ReviewCard';
+import StaticMap from '../components/StaticMap';
 import { formatPrice, formatDate, getInitials } from '../lib/utils';
 import {
   Star,
