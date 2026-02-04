@@ -127,6 +127,12 @@ export default function Navbar() {
                         Messages
                       </Link>
                     </DropdownMenuItem>
+                    <DropdownMenuItem asChild>
+                      <Link to="/settings" className="cursor-pointer" data-testid="settings-link">
+                        <User className="mr-2 h-4 w-4" />
+                        Settings
+                      </Link>
+                    </DropdownMenuItem>
                     <DropdownMenuItem asChild className="sm:hidden">
                       <Link to="/create-listing" className="cursor-pointer">
                         <Plus className="mr-2 h-4 w-4" />
