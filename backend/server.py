@@ -809,15 +809,49 @@ async def stripe_webhook(request: Request):
 # ============== CATEGORIES ==============
 
 CATEGORIES = [
-    {"id": "instruments", "name": "Instruments", "icon": "music"},
-    {"id": "tools", "name": "Tools", "icon": "wrench"},
-    {"id": "party", "name": "Party Equipment", "icon": "party-popper"},
-    {"id": "outdoors", "name": "Outdoors", "icon": "tent"},
-    {"id": "electronics", "name": "Electronics", "icon": "camera"},
-    {"id": "vehicles", "name": "Vehicles", "icon": "car"},
-    {"id": "sports", "name": "Sports", "icon": "dumbbell"},
-    {"id": "kitchen", "name": "Kitchen", "icon": "utensils"},
-    {"id": "garden", "name": "Garden", "icon": "flower"},
+    # Vehicles & Transport
+    {"id": "cars", "name": "Cars", "icon": "car"},
+    {"id": "motorcycles", "name": "Motorcycles & Scooters", "icon": "bike"},
+    {"id": "bikes", "name": "Bikes & E-Bikes", "icon": "bicycle"},
+    {"id": "boats", "name": "Boats & Watercraft", "icon": "ship"},
+    {"id": "caravans", "name": "Caravans & RVs", "icon": "caravan"},
+    # Heavy Equipment
+    {"id": "heavy-machinery", "name": "Heavy Machinery", "icon": "tractor"},
+    {"id": "construction", "name": "Construction Equipment", "icon": "hard-hat"},
+    {"id": "farming", "name": "Farming Equipment", "icon": "wheat"},
+    # Services & Labor
+    {"id": "tradies", "name": "Tradies & Handymen", "icon": "hammer"},
+    {"id": "manpower", "name": "Labor & Helpers", "icon": "users"},
+    {"id": "drivers", "name": "Drivers & Delivery", "icon": "truck"},
+    # Home & Living
+    {"id": "tools", "name": "Tools & DIY", "icon": "wrench"},
+    {"id": "kitchen", "name": "Kitchen & Appliances", "icon": "utensils"},
+    {"id": "furniture", "name": "Furniture", "icon": "sofa"},
+    {"id": "garden", "name": "Garden & Outdoor", "icon": "flower"},
+    {"id": "cleaning", "name": "Cleaning Equipment", "icon": "sparkles"},
+    # Events & Entertainment
+    {"id": "party", "name": "Party & Events", "icon": "party-popper"},
+    {"id": "audio-visual", "name": "Audio & Visual", "icon": "speaker"},
+    {"id": "instruments", "name": "Musical Instruments", "icon": "music"},
+    {"id": "photography", "name": "Photography & Video", "icon": "camera"},
+    # Sports & Recreation
+    {"id": "sports", "name": "Sports Equipment", "icon": "dumbbell"},
+    {"id": "camping", "name": "Camping & Hiking", "icon": "tent"},
+    {"id": "water-sports", "name": "Water Sports", "icon": "waves"},
+    {"id": "winter-sports", "name": "Winter Sports", "icon": "snowflake"},
+    # Tech & Electronics
+    {"id": "electronics", "name": "Electronics & Gadgets", "icon": "laptop"},
+    {"id": "gaming", "name": "Gaming", "icon": "gamepad"},
+    {"id": "drones", "name": "Drones", "icon": "plane"},
+    # Fashion & Accessories
+    {"id": "fashion", "name": "Fashion & Costumes", "icon": "shirt"},
+    {"id": "jewelry", "name": "Jewelry & Watches", "icon": "gem"},
+    {"id": "bags", "name": "Bags & Luggage", "icon": "briefcase"},
+    # Kids & Pets
+    {"id": "baby", "name": "Baby & Kids", "icon": "baby"},
+    {"id": "pets", "name": "Pet Equipment", "icon": "paw-print"},
+    # Other
+    {"id": "storage", "name": "Storage Space", "icon": "warehouse"},
     {"id": "other", "name": "Other", "icon": "package"}
 ]
 

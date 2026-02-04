@@ -55,10 +55,10 @@ export default function HomePage() {
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24 md:py-32">
           <div className="max-w-2xl">
             <h1 className="text-4xl md:text-6xl font-bold text-white mb-6 font-heading tracking-tight">
-              Rent anything from your neighbors
+              Rent anything, anywhere
             </h1>
             <p className="text-lg md:text-xl text-stone-200 mb-8 leading-relaxed">
-              From musical instruments to camping gear, find what you need in your community. Save money, reduce waste, and connect with people nearby.
+              Cars, bikes, heavy machinery, tools, tradies, party gear — if it exists, you can rent it. Save thousands, access anything, anytime.
             </p>
 
             {/* Search Bar */}
