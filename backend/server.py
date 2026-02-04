@@ -12,6 +12,7 @@ import uuid
 from datetime import datetime, timezone, timedelta
 import bcrypt
 import jwt
+import stripe
 from emergentintegrations.payments.stripe.checkout import StripeCheckout, CheckoutSessionResponse, CheckoutStatusResponse, CheckoutSessionRequest
 from twilio.rest import Client as TwilioClient
 
@@ -31,6 +32,7 @@ JWT_EXPIRATION_HOURS = 24
 # Stripe Config
 STRIPE_API_KEY = os.environ.get('STRIPE_API_KEY', 'sk_test_emergent')
 PLATFORM_FEE_PERCENT = 5.0
+stripe.api_key = STRIPE_API_KEY
 
 # Twilio Config
 TWILIO_ACCOUNT_SID = os.environ.get('TWILIO_ACCOUNT_SID')
