@@ -101,10 +101,10 @@ Build an app similar to Airbnb but for renting anything - from music instruments
 - Payment processing
 - Image uploads
 - Safety/Trust pages
+- Map view for location search
 
 ### P1 (High Priority) - Next
 - [ ] Phone verification (Twilio)
-- [ ] Map view for location search (Mapbox)
 - [ ] Email notifications (SendGrid)
 - [ ] Stripe Connect for real auto-payouts
 
