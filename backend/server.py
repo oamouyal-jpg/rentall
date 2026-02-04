@@ -234,7 +234,11 @@ async def register(user_data: UserCreate):
         "created_at": datetime.now(timezone.utc).isoformat(),
         "avatar_url": None,
         "location": None,
-        "bio": None
+        "bio": None,
+        "phone_verified": False,
+        "id_verified": False,
+        "total_earnings": 0.0,
+        "pending_payout": 0.0
     }
     await db.users.insert_one(user_doc)
     
@@ -243,7 +247,11 @@ async def register(user_data: UserCreate):
         id=user_id,
         email=user_data.email,
         name=user_data.name,
-        created_at=user_doc["created_at"]
+        created_at=user_doc["created_at"],
+        phone_verified=False,
+        id_verified=False,
+        total_earnings=0.0,
+        pending_payout=0.0
     )
     return TokenResponse(token=token, user=user_response)
 
@@ -261,7 +269,11 @@ async def login(credentials: UserLogin):
         created_at=user["created_at"],
         avatar_url=user.get("avatar_url"),
         location=user.get("location"),
-        bio=user.get("bio")
+        bio=user.get("bio"),
+        phone_verified=user.get("phone_verified", False),
+        id_verified=user.get("id_verified", False),
+        total_earnings=user.get("total_earnings", 0.0),
+        pending_payout=user.get("pending_payout", 0.0)
     )
     return TokenResponse(token=token, user=user_response)
 
