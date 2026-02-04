@@ -14,17 +14,22 @@ import CreateListingPage from "./pages/CreateListingPage";
 import MessagesPage from "./pages/MessagesPage";
 import PaymentSuccessPage from "./pages/PaymentSuccessPage";
 import PaymentCancelPage from "./pages/PaymentCancelPage";
+import HowItWorksPage from "./pages/HowItWorksPage";
+import SafetyPage from "./pages/SafetyPage";
+import TermsPage from "./pages/TermsPage";
+import PrivacyPage from "./pages/PrivacyPage";
 
 // Components
 import Navbar from "./components/Navbar";
+import Footer from "./components/Footer";
 
 function App() {
   return (
     <AuthProvider>
       <BrowserRouter>
-        <div className="min-h-screen bg-[#FAFAF9]">
+        <div className="min-h-screen bg-[#FAFAF9] flex flex-col">
           <Navbar />
-          <main>
+          <main className="flex-1">
             <Routes>
               <Route path="/" element={<HomePage />} />
               <Route path="/search" element={<SearchPage />} />
@@ -36,8 +41,13 @@ function App() {
               <Route path="/messages" element={<MessagesPage />} />
               <Route path="/payment/success" element={<PaymentSuccessPage />} />
               <Route path="/payment/cancel" element={<PaymentCancelPage />} />
+              <Route path="/how-it-works" element={<HowItWorksPage />} />
+              <Route path="/safety" element={<SafetyPage />} />
+              <Route path="/terms" element={<TermsPage />} />
+              <Route path="/privacy" element={<PrivacyPage />} />
             </Routes>
           </main>
+          <Footer />
           <Toaster 
             position="top-right" 
             toastOptions={{
