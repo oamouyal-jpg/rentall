@@ -229,6 +229,102 @@ class RentAllAPITester:
             return False
         return self.run_test("Get Conversations", "GET", "messages/conversations", 200) is not None
 
+    def test_image_upload(self):
+        """Test image upload API"""
+        if not self.token:
+            return False
+            
+        # Create a simple base64 image (1x1 pixel PNG)
+        base64_image = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8/5+hHgAHggJ/PchI7wAAAABJRU5ErkJggg=="
+        
+        image_data = {
+            "image_data": base64_image,
+            "filename": "test_image.png"
+        }
+        
+        result = self.run_test("Upload Image", "POST", "upload/image", 200, image_data)
+        if result and 'image_id' in result:
+            self.image_id = result['image_id']
+            return True
+        return False
+
+    def test_image_retrieval(self):
+        """Test image retrieval API"""
+        if not hasattr(self, 'image_id'):
+            return False
+            
+        # Test image retrieval (should return binary data, so we expect 200)
+        url = f"{self.base_url}/api/images/{self.image_id}"
+        try:
+            response = requests.get(url, timeout=10)
+            success = response.status_code == 200
+            details = f"Status: {response.status_code}"
+            if success:
+                details += f", Content-Type: {response.headers.get('content-type', 'unknown')}"
+            self.log_test("Get Image", success, details)
+            return success
+        except Exception as e:
+            self.log_test("Get Image", False, f"Exception: {str(e)}")
+            return False
+
+    def test_payouts_summary(self):
+        """Test payouts summary API"""
+        if not self.token:
+            return False
+        return self.run_test("Get Payouts Summary", "GET", "payouts/summary", 200) is not None
+
+    def test_my_payouts(self):
+        """Test my payouts API"""
+        if not self.token:
+            return False
+        return self.run_test("Get My Payouts", "GET", "payouts/my", 200) is not None
+
+    def test_payout_request(self):
+        """Test payout request API (should fail due to minimum amount)"""
+        if not self.token:
+            return False
+        # This should return 400 because minimum payout is $10 and new user has $0
+        result = self.run_test("Request Payout (Expected Fail)", "POST", "payouts/request", 400)
+        return result is None  # We expect this to fail, so None result is success
+
+    def test_user_fields_in_registration(self):
+        """Test that registration returns new user fields"""
+        timestamp = datetime.now().strftime("%H%M%S") + "fields"
+        user_data = {
+            "email": f"test_fields_{timestamp}@example.com",
+            "name": f"Test Fields User {timestamp}",
+            "password": "TestPass123!"
+        }
+        
+        result = self.run_test("Registration with New Fields", "POST", "auth/register", 200, user_data)
+        if result and 'user' in result:
+            user = result['user']
+            required_fields = ['phone_verified', 'id_verified', 'total_earnings', 'pending_payout']
+            missing_fields = [field for field in required_fields if field not in user]
+            
+            if missing_fields:
+                self.log_test("Check New User Fields", False, f"Missing fields: {missing_fields}")
+                return False
+            else:
+                # Verify default values
+                expected_values = {
+                    'phone_verified': False,
+                    'id_verified': False,
+                    'total_earnings': 0.0,
+                    'pending_payout': 0.0
+                }
+                
+                for field, expected_value in expected_values.items():
+                    if user[field] != expected_value:
+                        self.log_test("Check New User Fields", False, f"Field {field}: expected {expected_value}, got {user[field]}")
+                        return False
+                
+                self.log_test("Check New User Fields", True, "All new fields present with correct default values")
+                return True
+        
+        self.log_test("Check New User Fields", False, "No user data in registration response")
+        return False
+
     def run_all_tests(self):
         """Run all API tests"""
         print("🚀 Starting RentAll API Tests...")
