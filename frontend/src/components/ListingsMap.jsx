@@ -89,12 +89,13 @@ export default function ListingsMap({ listings, selectedListing, onSelectListing
             e.originalEvent.stopPropagation();
             handleMarkerClick(listing);
           }}
+          style={{ zIndex: selectedListing?.id === listing.id ? 10 : 1 }}
         >
           <div
             className={`
-              map-marker cursor-pointer transition-transform
-              ${selectedListing?.id === listing.id ? 'scale-110 z-10' : 'hover:scale-105'}
-              ${selectedListing?.id === listing.id ? 'bg-[#E05D44] text-white' : 'bg-white text-stone-900'}
+              map-marker cursor-pointer transition-all duration-200
+              ${selectedListing?.id === listing.id ? 'scale-125 shadow-lg' : 'hover:scale-110'}
+              ${selectedListing?.id === listing.id ? 'bg-[#E05D44] text-white border-[#E05D44]' : 'bg-white text-stone-900'}
             `}
           >
             ${Math.round(listing.price_per_day)}
