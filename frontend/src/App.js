@@ -18,6 +18,7 @@ import HowItWorksPage from "./pages/HowItWorksPage";
 import SafetyPage from "./pages/SafetyPage";
 import TermsPage from "./pages/TermsPage";
 import PrivacyPage from "./pages/PrivacyPage";
+import SettingsPage from "./pages/SettingsPage";
 
 // Components
 import Navbar from "./components/Navbar";
