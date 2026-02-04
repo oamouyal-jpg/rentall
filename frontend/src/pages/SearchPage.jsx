@@ -91,12 +91,12 @@ export default function SearchPage() {
           </form>
 
           <div className="flex gap-2">
-            <Select value={category} onValueChange={setCategory}>
+            <Select value={category || "all"} onValueChange={(val) => setCategory(val === "all" ? "" : val)}>
               <SelectTrigger className="w-[180px] h-12 rounded-xl" data-testid="category-select">
                 <SelectValue placeholder="All categories" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">All categories</SelectItem>
+                <SelectItem value="all">All categories</SelectItem>
                 {categories.map((cat) => (
                   <SelectItem key={cat.id} value={cat.id}>
                     {cat.name}
