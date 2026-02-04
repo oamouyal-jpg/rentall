@@ -270,10 +270,10 @@ export default function HomePage() {
             <div className="absolute inset-0 flex items-center">
               <div className="max-w-xl px-8 md:px-12">
                 <h2 className="text-3xl md:text-4xl font-bold text-white mb-4 font-heading">
-                  Turn your stuff into income
+                  Turn your assets into income
                 </h2>
                 <p className="text-stone-200 text-lg mb-6 leading-relaxed">
-                  Have tools, equipment, or gear sitting around? List them on RentAll and earn money while helping your neighbors.
+                  Got a car sitting in the driveway? Tools in the shed? Skills to share? List anything on RentAll and start earning.
                 </p>
                 <Link to="/create-listing">
                   <Button 
