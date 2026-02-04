@@ -52,6 +52,10 @@ class UserResponse(UserBase):
     avatar_url: Optional[str] = None
     location: Optional[str] = None
     bio: Optional[str] = None
+    phone_verified: bool = False
+    id_verified: bool = False
+    total_earnings: float = 0.0
+    pending_payout: float = 0.0
 
 class UserLogin(BaseModel):
     email: EmailStr
