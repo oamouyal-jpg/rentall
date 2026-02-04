@@ -396,6 +396,118 @@ async def verify_phone_code(
     
     return {"message": "Phone number verified successfully"}
 
+# ============== STRIPE CONNECT ==============
+
+class StripeConnectRequest(BaseModel):
+    return_url: str
+
+@api_router.post("/stripe/connect/create-account")
+async def create_stripe_connect_account(
+    data: StripeConnectRequest,
+    current_user: dict = Depends(get_current_user)
+):
+    """Create a Stripe Connect account for the owner"""
+    try:
+        # Check if user already has a Stripe account
+        if current_user.get("stripe_account_id"):
+            # Create new account link for existing account
+            account_link = stripe.AccountLink.create(
+                account=current_user["stripe_account_id"],
+                refresh_url=f"{data.return_url}?refresh=true",
+                return_url=f"{data.return_url}?success=true",
+                type="account_onboarding",
+            )
+            return {"url": account_link.url, "account_id": current_user["stripe_account_id"]}
+        
+        # Create new Stripe Connect Express account
+        account = stripe.Account.create(
+            type="express",
+            country="US",
+            email=current_user["email"],
+            capabilities={
+                "card_payments": {"requested": True},
+                "transfers": {"requested": True},
+            },
+            business_type="individual",
+            metadata={
+                "user_id": current_user["id"],
+                "platform": "rentall"
+            }
+        )
+        
+        # Save account ID to user
+        await db.users.update_one(
+            {"id": current_user["id"]},
+            {"$set": {"stripe_account_id": account.id}}
+        )
+        
+        # Create account link for onboarding
+        account_link = stripe.AccountLink.create(
+            account=account.id,
+            refresh_url=f"{data.return_url}?refresh=true",
+            return_url=f"{data.return_url}?success=true",
+            type="account_onboarding",
+        )
+        
+        return {"url": account_link.url, "account_id": account.id}
+    except stripe.error.StripeError as e:
+        logging.error(f"Stripe Connect error: {e}")
+        raise HTTPException(status_code=400, detail=str(e))
+
+@api_router.get("/stripe/connect/status")
+async def get_stripe_connect_status(current_user: dict = Depends(get_current_user)):
+    """Check if user's Stripe Connect account is fully set up"""
+    stripe_account_id = current_user.get("stripe_account_id")
+    
+    if not stripe_account_id:
+        return {
+            "connected": False,
+            "details_submitted": False,
+            "charges_enabled": False,
+            "payouts_enabled": False
+        }
+    
+    try:
+        account = stripe.Account.retrieve(stripe_account_id)
+        
+        is_connected = account.details_submitted and account.charges_enabled
+        
+        # Update user's stripe_connected status
+        if is_connected != current_user.get("stripe_connected", False):
+            await db.users.update_one(
+                {"id": current_user["id"]},
+                {"$set": {"stripe_connected": is_connected}}
+            )
+        
+        return {
+            "connected": is_connected,
+            "details_submitted": account.details_submitted,
+            "charges_enabled": account.charges_enabled,
+            "payouts_enabled": account.payouts_enabled,
+            "account_id": stripe_account_id
+        }
+    except stripe.error.StripeError as e:
+        logging.error(f"Stripe status error: {e}")
+        return {
+            "connected": False,
+            "error": str(e)
+        }
+
+@api_router.get("/stripe/connect/dashboard")
+async def get_stripe_dashboard_link(current_user: dict = Depends(get_current_user)):
+    """Get a link to the Stripe Express dashboard for the owner"""
+    stripe_account_id = current_user.get("stripe_account_id")
+    
+    if not stripe_account_id:
+        raise HTTPException(status_code=400, detail="No Stripe account connected")
+    
+    try:
+        login_link = stripe.Account.create_login_link(stripe_account_id)
+        return {"url": login_link.url}
+    except stripe.error.StripeError as e:
+        logging.error(f"Stripe dashboard error: {e}")
+        raise HTTPException(status_code=400, detail=str(e))
+
 # ============== LISTINGS ROUTES ==============
 
 @api_router.post("/listings", response_model=ListingResponse)
