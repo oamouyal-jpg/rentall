@@ -335,9 +335,21 @@ class RentAllAPITester:
         self.test_root_endpoint()
         self.test_categories()
 
+        # Test new user fields in registration
+        self.test_user_fields_in_registration()
+
         # Test authentication
         if self.test_user_registration():
             self.test_get_me()
+            
+            # Test new image upload APIs
+            if self.test_image_upload():
+                self.test_image_retrieval()
+            
+            # Test new payout APIs
+            self.test_payouts_summary()
+            self.test_my_payouts()
+            self.test_payout_request()
             
             # Test listings
             if self.test_create_listing():
