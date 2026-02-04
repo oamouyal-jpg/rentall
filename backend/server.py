@@ -904,49 +904,85 @@ async def create_checkout(
     if booking["status"] == "paid":
         raise HTTPException(status_code=400, detail="Booking already paid")
     
-    # Build URLs from provided origin
+    # Get owner's Stripe Connect account
+    owner = await db.users.find_one({"id": booking["owner_id"]})
+    owner_stripe_account = owner.get("stripe_account_id") if owner else None
+    
+    # Build URLs
     success_url = f"{checkout_data.origin_url}/payment/success?session_id={{CHECKOUT_SESSION_ID}}"
     cancel_url = f"{checkout_data.origin_url}/payment/cancel"
     
-    # Initialize Stripe
-    host_url = str(request.base_url)
-    webhook_url = f"{host_url}api/webhook/stripe"
-    stripe_checkout = StripeCheckout(api_key=STRIPE_API_KEY, webhook_url=webhook_url)
-    
-    # Create checkout session
-    checkout_request = CheckoutSessionRequest(
-        amount=float(booking["total_price"]),
-        currency="usd",
-        success_url=success_url,
-        cancel_url=cancel_url,
-        metadata={
+    try:
+        # Calculate amounts in cents
+        total_cents = int(booking["total_price"] * 100)
+        platform_fee_cents = int(booking["platform_fee"] * 100)
+        
+        # Create Stripe Checkout Session with Connect
+        session_params = {
+            "payment_method_types": ["card"],
+            "line_items": [{
+                "price_data": {
+                    "currency": "usd",
+                    "unit_amount": total_cents,
+                    "product_data": {
+                        "name": booking.get("listing_title", "Rental Booking"),
+                        "description": f"Rental from {booking['start_date']} to {booking['end_date']}",
+                    },
+                },
+                "quantity": 1,
+            }],
+            "mode": "payment",
+            "success_url": success_url,
+            "cancel_url": cancel_url,
+            "metadata": {
+                "booking_id": booking["id"],
+                "user_id": current_user["id"],
+                "owner_id": booking["owner_id"],
+                "platform_fee": str(booking["platform_fee"])
+            }
+        }
+        
+        # If owner has Stripe Connect, use payment splitting
+        if owner_stripe_account:
+            session_params["payment_intent_data"] = {
+                "application_fee_amount": platform_fee_cents,
+                "transfer_data": {
+                    "destination": owner_stripe_account,
+                },
+            }
+        
+        session = stripe.checkout.Session.create(**session_params)
+        
+        # Create payment transaction record
+        transaction_id = str(uuid.uuid4())
+        transaction_doc = {
+            "id": transaction_id,
+            "session_id": session.id,
             "booking_id": booking["id"],
             "user_id": current_user["id"],
-            "platform_fee": str(booking["platform_fee"])
+            "owner_id": booking["owner_id"],
+            "amount": booking["total_price"],
+            "currency": "usd",
+            "platform_fee": booking["platform_fee"],
+            "owner_amount": booking["total_price"] - booking["platform_fee"],
+            "owner_stripe_account": owner_stripe_account,
+            "auto_payout": owner_stripe_account is not None,
+            "status": "initiated",
+            "payment_status": "pending",
+            "created_at": datetime.now(timezone.utc).isoformat(),
+            "metadata": {
+                "booking_id": booking["id"],
+                "listing_id": booking["listing_id"]
+            }
         }
-    )
-    
-    session: CheckoutSessionResponse = await stripe_checkout.create_checkout_session(checkout_request)
-    
-    # Create payment transaction record
-    transaction_id = str(uuid.uuid4())
-    transaction_doc = {
-        "id": transaction_id,
-        "session_id": session.session_id,
-        "booking_id": booking["id"],
-        "user_id": current_user["id"],
-        "amount": booking["total_price"],
-        "currency": "usd",
-        "platform_fee": booking["platform_fee"],
-        "owner_amount": booking["total_price"] - booking["platform_fee"],
-        "status": "initiated",
-        "payment_status": "pending",
-        "created_at": datetime.now(timezone.utc).isoformat(),
-        "metadata": {
-            "booking_id": booking["id"],
-            "listing_id": booking["listing_id"]
-        }
-    }
+        
+        await db.payment_transactions.insert_one(transaction_doc)
+        
+        return {"url": session.url, "session_id": session.id}
+        
+    except stripe.error.StripeError as e:
+        logging.error(f"Stripe checkout error: {e}")
+        raise HTTPException(status_code=400, detail=str(e))
     
     await db.payment_transactions.insert_one(transaction_doc)
     
