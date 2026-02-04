@@ -69,6 +69,8 @@ class UserResponse(UserBase):
     id_verified: bool = False
     total_earnings: float = 0.0
     pending_payout: float = 0.0
+    stripe_account_id: Optional[str] = None
+    stripe_connected: bool = False
 
 class UserLogin(BaseModel):
     email: EmailStr
