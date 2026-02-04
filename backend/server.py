@@ -296,7 +296,7 @@ async def update_profile(
     updates: dict,
     current_user: dict = Depends(get_current_user)
 ):
-    allowed_fields = ["name", "avatar_url", "location", "bio"]
+    allowed_fields = ["name", "avatar_url", "location", "bio", "phone_number"]
     update_data = {k: v for k, v in updates.items() if k in allowed_fields}
     
     if update_data:
@@ -307,6 +307,89 @@ async def update_profile(
     
     updated_user = await db.users.find_one({"id": current_user["id"]}, {"_id": 0, "password": 0})
     return UserResponse(**updated_user)
+
+# ============== PHONE VERIFICATION ==============
+
+class PhoneVerifyRequest(BaseModel):
+    phone_number: str
+
+class PhoneVerifyCode(BaseModel):
+    phone_number: str
+    code: str
+
+@api_router.post("/auth/phone/send-code")
+async def send_phone_verification_code(
+    data: PhoneVerifyRequest,
+    current_user: dict = Depends(get_current_user)
+):
+    if not twilio_client:
+        raise HTTPException(status_code=500, detail="SMS service not configured")
+    
+    # Generate 6-digit code
+    code = str(random.randint(100000, 999999))
+    
+    # Store code in database with expiry
+    await db.verification_codes.update_one(
+        {"user_id": current_user["id"], "type": "phone"},
+        {
+            "$set": {
+                "user_id": current_user["id"],
+                "type": "phone",
+                "phone_number": data.phone_number,
+                "code": code,
+                "expires_at": (datetime.now(timezone.utc) + timedelta(minutes=10)).isoformat(),
+                "created_at": datetime.now(timezone.utc).isoformat()
+            }
+        },
+        upsert=True
+    )
+    
+    # Send SMS via Twilio
+    try:
+        message = twilio_client.messages.create(
+            body=f"Your RentAll verification code is: {code}. Valid for 10 minutes.",
+            from_=TWILIO_PHONE_NUMBER,
+            to=data.phone_number
+        )
+        return {"message": "Verification code sent", "sid": message.sid}
+    except Exception as e:
+        logging.error(f"Twilio error: {e}")
+        raise HTTPException(status_code=500, detail="Failed to send SMS")
+
+@api_router.post("/auth/phone/verify")
+async def verify_phone_code(
+    data: PhoneVerifyCode,
+    current_user: dict = Depends(get_current_user)
+):
+    # Find verification code
+    verification = await db.verification_codes.find_one({
+        "user_id": current_user["id"],
+        "type": "phone",
+        "phone_number": data.phone_number
+    })
+    
+    if not verification:
+        raise HTTPException(status_code=400, detail="No verification code found")
+    
+    # Check if expired
+    expires_at = datetime.fromisoformat(verification["expires_at"].replace('Z', '+00:00'))
+    if datetime.now(timezone.utc) > expires_at:
+        raise HTTPException(status_code=400, detail="Verification code expired")
+    
+    # Check code
+    if verification["code"] != data.code:
+        raise HTTPException(status_code=400, detail="Invalid verification code")
+    
+    # Mark phone as verified
+    await db.users.update_one(
+        {"id": current_user["id"]},
+        {"$set": {"phone_verified": True, "phone_number": data.phone_number}}
+    )
+    
+    # Delete verification code
+    await db.verification_codes.delete_one({"user_id": current_user["id"], "type": "phone"})
+    
+    return {"message": "Phone number verified successfully"}
 
 # ============== LISTINGS ROUTES ==============
 
