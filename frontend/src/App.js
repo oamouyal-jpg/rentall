@@ -46,6 +46,7 @@ function App() {
               <Route path="/safety" element={<SafetyPage />} />
               <Route path="/terms" element={<TermsPage />} />
               <Route path="/privacy" element={<PrivacyPage />} />
+              <Route path="/settings" element={<SettingsPage />} />
             </Routes>
           </main>
           <Footer />
