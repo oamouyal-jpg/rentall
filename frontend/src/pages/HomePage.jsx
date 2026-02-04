@@ -85,15 +85,18 @@ export default function HomePage() {
 
             {/* Quick Categories */}
             <div className="flex flex-wrap gap-2 mt-6">
-              {categories.slice(0, 5).map((cat) => (
-                <Link
-                  key={cat.id}
-                  to={`/search?category=${cat.id}`}
-                  className="px-4 py-2 rounded-full bg-white/10 backdrop-blur-sm text-white text-sm hover:bg-white/20 transition-colors"
-                >
-                  {cat.name}
-                </Link>
-              ))}
+              {['cars', 'heavy-machinery', 'tradies', 'tools', 'party', 'camping'].map((catId) => {
+                const cat = categories.find(c => c.id === catId);
+                return cat ? (
+                  <Link
+                    key={cat.id}
+                    to={`/search?category=${cat.id}`}
+                    className="px-4 py-2 rounded-full bg-white/10 backdrop-blur-sm text-white text-sm hover:bg-white/20 transition-colors"
+                  >
+                    {cat.name}
+                  </Link>
+                ) : null;
+              })}
             </div>
           </div>
         </div>
