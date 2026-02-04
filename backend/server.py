@@ -983,10 +983,6 @@ async def create_checkout(
     except stripe.error.StripeError as e:
         logging.error(f"Stripe checkout error: {e}")
         raise HTTPException(status_code=400, detail=str(e))
-    
-    await db.payment_transactions.insert_one(transaction_doc)
-    
-    return {"url": session.url, "session_id": session.session_id}
 
 @api_router.get("/payments/status/{session_id}")
 async def get_payment_status(
@@ -1001,22 +997,50 @@ async def get_payment_status(
     if transaction["user_id"] != current_user["id"]:
         raise HTTPException(status_code=403, detail="Not authorized")
     
-    # Check Stripe status
-    host_url = str(request.base_url)
-    webhook_url = f"{host_url}api/webhook/stripe"
-    stripe_checkout = StripeCheckout(api_key=STRIPE_API_KEY, webhook_url=webhook_url)
-    
-    checkout_status: CheckoutStatusResponse = await stripe_checkout.get_checkout_status(session_id)
-    
-    # Update transaction and booking if payment successful
-    if checkout_status.payment_status == "paid" and transaction["payment_status"] != "paid":
-        await db.payment_transactions.update_one(
-            {"session_id": session_id},
-            {"$set": {
-                "status": "completed",
-                "payment_status": "paid"
-            }}
-        )
+    try:
+        # Check Stripe session status directly
+        session = stripe.checkout.Session.retrieve(session_id)
+        
+        payment_status = "pending"
+        if session.payment_status == "paid":
+            payment_status = "paid"
+        elif session.status == "expired":
+            payment_status = "expired"
+        
+        # Update transaction and booking if payment successful
+        if payment_status == "paid" and transaction["payment_status"] != "paid":
+            await db.payment_transactions.update_one(
+                {"session_id": session_id},
+                {"$set": {
+                    "status": "completed",
+                    "payment_status": "paid"
+                }}
+            )
+            
+            await db.bookings.update_one(
+                {"id": transaction["booking_id"]},
+                {"$set": {"status": "paid"}}
+            )
+            
+            # If NOT auto-payout, credit owner's pending payout
+            if not transaction.get("auto_payout", False):
+                owner_amount = transaction.get("owner_amount", transaction["amount"] * 0.95)
+                await db.users.update_one(
+                    {"id": transaction.get("owner_id")},
+                    {"$inc": {"pending_payout": owner_amount, "total_earnings": owner_amount}}
+                )
+        
+        return {
+            "status": session.status,
+            "payment_status": payment_status,
+            "amount": session.amount_total / 100 if session.amount_total else transaction["amount"],
+            "currency": session.currency or "usd",
+            "auto_payout": transaction.get("auto_payout", False)
+        }
+        
+    except stripe.error.StripeError as e:
+        logging.error(f"Stripe status error: {e}")
+        raise HTTPException(status_code=400, detail=str(e))
         
         await db.bookings.update_one(
             {"id": transaction["booking_id"]},
