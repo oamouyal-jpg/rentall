@@ -1,8 +1,8 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 import { useAuth } from '../context/AuthContext';
-import { listingsAPI, categoriesAPI } from '../lib/api';
+import { listingsAPI, categoriesAPI, uploadAPI } from '../lib/api';
 import { Button } from '../components/ui/button';
 import { Input } from '../components/ui/input';
 import { Label } from '../components/ui/label';
@@ -14,14 +14,16 @@ import {
   SelectTrigger,
   SelectValue,
 } from '../components/ui/select';
-import { Loader2, Upload, X, MapPin } from 'lucide-react';
+import { Loader2, Upload, X, MapPin, Image as ImageIcon, DollarSign } from 'lucide-react';
 
 export default function CreateListingPage() {
   const { user, loading: authLoading } = useAuth();
   const navigate = useNavigate();
+  const fileInputRef = useRef(null);
 
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [uploading, setUploading] = useState(false);
 
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
@@ -30,7 +32,8 @@ export default function CreateListingPage() {
   const [location, setLocation] = useState('');
   const [latitude, setLatitude] = useState(40.7128);
   const [longitude, setLongitude] = useState(-74.0060);
-  const [images, setImages] = useState(['']);
+  const [images, setImages] = useState([]);
+  const [damageDeposit, setDamageDeposit] = useState('');
 
   useEffect(() => {
     if (!authLoading && !user) {
@@ -41,37 +44,65 @@ export default function CreateListingPage() {
   useEffect(() => {
     categoriesAPI.getAll().then((res) => setCategories(res.data));
 
-    // Try to get user's location
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
         (pos) => {
           setLatitude(pos.coords.latitude);
           setLongitude(pos.coords.longitude);
         },
-        () => {
-          // Use default NYC coordinates
-        }
+        () => {}
       );
     }
   }, []);
 
-  const handleImageChange = (index, value) => {
-    const newImages = [...images];
-    newImages[index] = value;
-    setImages(newImages);
+  const handleFileSelect = async (e) => {
+    const files = Array.from(e.target.files);
+    if (files.length === 0) return;
+
+    if (images.length + files.length > 5) {
+      toast.error('Maximum 5 images allowed');
+      return;
+    }
+
+    setUploading(true);
+
+    for (const file of files) {
+      if (file.size > 5 * 1024 * 1024) {
+        toast.error(`${file.name} is too large (max 5MB)`);
+        continue;
+      }
+
+      try {
+        const reader = new FileReader();
+        reader.onload = async (event) => {
+          const base64Data = event.target.result;
+          
+          try {
+            const res = await uploadAPI.uploadImage({
+              image_data: base64Data,
+              filename: file.name,
+            });
+            
+            const backendUrl = process.env.REACT_APP_BACKEND_URL;
+            const imageUrl = `${backendUrl}${res.data.url}`;
+            setImages((prev) => [...prev, imageUrl]);
+          } catch (err) {
+            console.error('Upload error:', err);
+            toast.error(`Failed to upload ${file.name}`);
+          }
+        };
+        reader.readAsDataURL(file);
+      } catch (err) {
+        console.error('File read error:', err);
+      }
+    }
+
+    setUploading(false);
+    e.target.value = '';
   };
 
-  const addImageField = () => {
-    if (images.length < 5) {
-      setImages([...images, '']);
-    }
-  };
-
-  const removeImageField = (index) => {
-    if (images.length > 1) {
-      const newImages = images.filter((_, i) => i !== index);
-      setImages(newImages);
-    }
+  const removeImage = (index) => {
+    setImages((prev) => prev.filter((_, i) => i !== index));
   };
 
   const handleSubmit = async (e) => {
@@ -88,6 +119,11 @@ export default function CreateListingPage() {
       return;
     }
 
+    if (images.length === 0) {
+      toast.error('Please add at least one image');
+      return;
+    }
+
     setLoading(true);
 
     try {
@@ -99,7 +135,8 @@ export default function CreateListingPage() {
         location,
         latitude,
         longitude,
-        images: images.filter((img) => img.trim() !== ''),
+        images,
+        damage_deposit: damageDeposit ? parseFloat(damageDeposit) : 0,
       };
 
       const res = await listingsAPI.create(listingData);
@@ -131,11 +168,71 @@ export default function CreateListingPage() {
             List an item
           </h1>
           <p className="text-stone-600 mt-2">
-            Share your stuff and start earning
+            Share your stuff and start earning. You keep 95% of every rental.
           </p>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-6">
+          {/* Images Upload */}
+          <div className="space-y-2">
+            <Label>Photos</Label>
+            <p className="text-sm text-stone-500 mb-2">
+              Add up to 5 photos. First photo will be the cover image.
+            </p>
+            
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/*"
+              multiple
+              onChange={handleFileSelect}
+              className="hidden"
+            />
+
+            <div className="grid grid-cols-3 sm:grid-cols-5 gap-3">
+              {images.map((img, index) => (
+                <div key={index} className="relative aspect-square rounded-xl overflow-hidden bg-stone-100 group">
+                  <img
+                    src={img}
+                    alt={`Upload ${index + 1}`}
+                    className="w-full h-full object-cover"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => removeImage(index)}
+                    className="absolute top-1 right-1 w-6 h-6 bg-black/50 hover:bg-black/70 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
+                  >
+                    <X className="h-4 w-4 text-white" />
+                  </button>
+                  {index === 0 && (
+                    <span className="absolute bottom-1 left-1 px-2 py-0.5 bg-black/50 text-white text-xs rounded">
+                      Cover
+                    </span>
+                  )}
+                </div>
+              ))}
+              
+              {images.length < 5 && (
+                <button
+                  type="button"
+                  onClick={() => fileInputRef.current?.click()}
+                  disabled={uploading}
+                  className="aspect-square rounded-xl border-2 border-dashed border-stone-300 hover:border-[#E05D44] hover:bg-[#E05D44]/5 flex flex-col items-center justify-center gap-2 transition-colors"
+                  data-testid="upload-image-btn"
+                >
+                  {uploading ? (
+                    <Loader2 className="h-6 w-6 animate-spin text-stone-400" />
+                  ) : (
+                    <>
+                      <ImageIcon className="h-6 w-6 text-stone-400" />
+                      <span className="text-xs text-stone-500">Add photo</span>
+                    </>
+                  )}
+                </button>
+              )}
+            </div>
+          </div>
+
           {/* Title */}
           <div className="space-y-2">
             <Label htmlFor="title">Title</Label>
@@ -157,7 +254,7 @@ export default function CreateListingPage() {
               <SelectTrigger className="h-12 rounded-xl" data-testid="listing-category-select">
                 <SelectValue placeholder="Select a category" />
               </SelectTrigger>
-              <SelectContent>
+              <SelectContent className="max-h-[300px]">
                 {categories.map((cat) => (
                   <SelectItem key={cat.id} value={cat.id}>
                     {cat.name}
@@ -183,20 +280,43 @@ export default function CreateListingPage() {
           </div>
 
           {/* Price */}
-          <div className="space-y-2">
-            <Label htmlFor="price">Price per day ($)</Label>
-            <Input
-              id="price"
-              type="number"
-              step="0.01"
-              min="0.01"
-              placeholder="25.00"
-              value={pricePerDay}
-              onChange={(e) => setPricePerDay(e.target.value)}
-              required
-              className="h-12 rounded-xl"
-              data-testid="listing-price-input"
-            />
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="price">Price per day</Label>
+              <div className="relative">
+                <DollarSign className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-stone-400" />
+                <Input
+                  id="price"
+                  type="number"
+                  step="0.01"
+                  min="0.01"
+                  placeholder="25.00"
+                  value={pricePerDay}
+                  onChange={(e) => setPricePerDay(e.target.value)}
+                  required
+                  className="h-12 pl-11 rounded-xl"
+                  data-testid="listing-price-input"
+                />
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="deposit">Damage deposit (optional)</Label>
+              <div className="relative">
+                <DollarSign className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-stone-400" />
+                <Input
+                  id="deposit"
+                  type="number"
+                  step="0.01"
+                  min="0"
+                  placeholder="0.00"
+                  value={damageDeposit}
+                  onChange={(e) => setDamageDeposit(e.target.value)}
+                  className="h-12 pl-11 rounded-xl"
+                  data-testid="listing-deposit-input"
+                />
+              </div>
+            </div>
           </div>
 
           {/* Location */}
@@ -216,81 +336,22 @@ export default function CreateListingPage() {
             </div>
           </div>
 
-          {/* Images */}
-          <div className="space-y-2">
-            <Label>Image URLs</Label>
-            <p className="text-sm text-stone-500 mb-2">
-              Add up to 5 image URLs for your listing
-            </p>
-            <div className="space-y-3">
-              {images.map((img, index) => (
-                <div key={index} className="flex gap-2">
-                  <div className="relative flex-1">
-                    <Upload className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-stone-400" />
-                    <Input
-                      placeholder="https://example.com/image.jpg"
-                      value={img}
-                      onChange={(e) => handleImageChange(index, e.target.value)}
-                      className="h-12 pl-11 rounded-xl"
-                      data-testid={`listing-image-input-${index}`}
-                    />
-                  </div>
-                  {images.length > 1 && (
-                    <Button
-                      type="button"
-                      variant="outline"
-                      size="icon"
-                      onClick={() => removeImageField(index)}
-                      className="h-12 w-12 rounded-xl shrink-0"
-                    >
-                      <X className="h-4 w-4" />
-                    </Button>
-                  )}
-                </div>
-              ))}
-              {images.length < 5 && (
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={addImageField}
-                  className="w-full h-12 rounded-xl border-dashed"
-                  data-testid="add-image-btn"
-                >
-                  <Upload className="h-4 w-4 mr-2" />
-                  Add another image
-                </Button>
-              )}
-            </div>
+          {/* Info Box */}
+          <div className="bg-[#8DA399]/10 border border-[#8DA399]/20 rounded-xl p-4">
+            <h3 className="font-medium text-stone-900 mb-2">What happens next?</h3>
+            <ul className="text-sm text-stone-600 space-y-1">
+              <li>• Your listing will be live immediately</li>
+              <li>• Renters can message you or book directly</li>
+              <li>• You'll receive 95% of each booking (we take 5%)</li>
+              <li>• Payouts are processed after rental completion</li>
+            </ul>
           </div>
-
-          {/* Preview */}
-          {images.filter((img) => img.trim()).length > 0 && (
-            <div className="space-y-2">
-              <Label>Preview</Label>
-              <div className="grid grid-cols-3 gap-2">
-                {images
-                  .filter((img) => img.trim())
-                  .map((img, index) => (
-                    <div key={index} className="aspect-square rounded-xl overflow-hidden bg-stone-100">
-                      <img
-                        src={img}
-                        alt={`Preview ${index + 1}`}
-                        className="w-full h-full object-cover"
-                        onError={(e) => {
-                          e.target.src = 'https://images.unsplash.com/photo-1553062407-98eeb64c6a62?w=400';
-                        }}
-                      />
-                    </div>
-                  ))}
-              </div>
-            </div>
-          )}
 
           {/* Submit */}
           <div className="pt-4">
             <Button
               type="submit"
-              disabled={loading}
+              disabled={loading || images.length === 0}
               className="w-full h-12 rounded-full bg-[#E05D44] hover:bg-[#C54E36] btn-press"
               data-testid="create-listing-submit-btn"
             >
