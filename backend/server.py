@@ -808,11 +808,141 @@ async def stripe_webhook(request: Request):
                     {"id": transaction["booking_id"]},
                     {"$set": {"status": "paid"}}
                 )
+                
+                # Credit owner's pending payout
+                booking = await db.bookings.find_one({"id": transaction["booking_id"]})
+                if booking:
+                    owner_amount = transaction.get("owner_amount", transaction["amount"] * 0.95)
+                    await db.users.update_one(
+                        {"id": booking["owner_id"]},
+                        {"$inc": {"pending_payout": owner_amount, "total_earnings": owner_amount}}
+                    )
+                    # Create payout record
+                    await db.payouts.insert_one({
+                        "id": str(uuid.uuid4()),
+                        "owner_id": booking["owner_id"],
+                        "booking_id": booking["id"],
+                        "amount": owner_amount,
+                        "status": "pending",
+                        "created_at": datetime.now(timezone.utc).isoformat()
+                    })
         
         return {"status": "ok"}
     except Exception as e:
         logging.error(f"Webhook error: {e}")
         return {"status": "error"}
+
+# ============== IMAGE UPLOAD ==============
+
+class ImageUpload(BaseModel):
+    image_data: str  # Base64 encoded image
+    filename: str
+
+@api_router.post("/upload/image")
+async def upload_image(
+    upload: ImageUpload,
+    current_user: dict = Depends(get_current_user)
+):
+    import base64
+    
+    # Validate image size (max 5MB)
+    try:
+        image_bytes = base64.b64decode(upload.image_data.split(',')[-1])
+        if len(image_bytes) > 5 * 1024 * 1024:
+            raise HTTPException(status_code=400, detail="Image too large (max 5MB)")
+    except Exception as e:
+        raise HTTPException(status_code=400, detail="Invalid image data")
+    
+    # Store image in database
+    image_id = str(uuid.uuid4())
+    image_doc = {
+        "id": image_id,
+        "user_id": current_user["id"],
+        "filename": upload.filename,
+        "data": upload.image_data,
+        "created_at": datetime.now(timezone.utc).isoformat()
+    }
+    
+    await db.images.insert_one(image_doc)
+    
+    # Return URL to access image
+    return {"image_id": image_id, "url": f"/api/images/{image_id}"}
+
+@api_router.get("/images/{image_id}")
+async def get_image(image_id: str):
+    from fastapi.responses import Response
+    import base64
+    
+    image = await db.images.find_one({"id": image_id})
+    if not image:
+        raise HTTPException(status_code=404, detail="Image not found")
+    
+    # Extract base64 data
+    data = image["data"]
+    if ',' in data:
+        header, data = data.split(',', 1)
+        content_type = header.split(':')[1].split(';')[0] if ':' in header else 'image/jpeg'
+    else:
+        content_type = 'image/jpeg'
+    
+    image_bytes = base64.b64decode(data)
+    return Response(content=image_bytes, media_type=content_type)
+
+# ============== PAYOUTS ==============
+
+@api_router.get("/payouts/my")
+async def get_my_payouts(current_user: dict = Depends(get_current_user)):
+    payouts = await db.payouts.find(
+        {"owner_id": current_user["id"]},
+        {"_id": 0}
+    ).sort("created_at", -1).to_list(100)
+    return payouts
+
+@api_router.get("/payouts/summary")
+async def get_payout_summary(current_user: dict = Depends(get_current_user)):
+    user = await db.users.find_one({"id": current_user["id"]}, {"_id": 0})
+    
+    # Get paid out amount
+    paid_payouts = await db.payouts.find(
+        {"owner_id": current_user["id"], "status": "paid"},
+        {"_id": 0}
+    ).to_list(1000)
+    
+    paid_amount = sum(p.get("amount", 0) for p in paid_payouts)
+    
+    return {
+        "total_earnings": user.get("total_earnings", 0),
+        "pending_payout": user.get("pending_payout", 0),
+        "paid_out": paid_amount
+    }
+
+@api_router.post("/payouts/request")
+async def request_payout(current_user: dict = Depends(get_current_user)):
+    user = await db.users.find_one({"id": current_user["id"]})
+    pending = user.get("pending_payout", 0)
+    
+    if pending < 10:
+        raise HTTPException(status_code=400, detail="Minimum payout is $10")
+    
+    # Create payout request
+    payout_request_id = str(uuid.uuid4())
+    await db.payout_requests.insert_one({
+        "id": payout_request_id,
+        "user_id": current_user["id"],
+        "amount": pending,
+        "status": "pending",
+        "created_at": datetime.now(timezone.utc).isoformat()
+    })
+    
+    # Note: In production, this would trigger actual payout via Stripe Connect
+    # For now, we just record the request
+    
+    return {
+        "message": "Payout request submitted",
+        "request_id": payout_request_id,
+        "amount": pending,
+        "note": "Payouts are processed within 3-5 business days"
+    }
 
 # ============== CATEGORIES ==============
 
