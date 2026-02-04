@@ -319,6 +319,26 @@ export default function ListingPage() {
               </p>
             </div>
 
+            {/* Location Map */}
+            {listing.latitude && listing.longitude && (
+              <div>
+                <h2 className="text-lg font-semibold text-stone-900 mb-3 font-heading">
+                  Location
+                </h2>
+                <div className="h-[250px] rounded-2xl overflow-hidden border border-stone-200">
+                  <StaticMap
+                    latitude={listing.latitude}
+                    longitude={listing.longitude}
+                    title={listing.title}
+                  />
+                </div>
+                <p className="text-sm text-stone-500 mt-2 flex items-center gap-1">
+                  <MapPin className="h-4 w-4" />
+                  {listing.location}
+                </p>
+              </div>
+            )}
+
             {/* Reviews */}
             <div>
               <h2 className="text-lg font-semibold text-stone-900 mb-4 font-heading">
