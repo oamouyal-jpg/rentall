@@ -124,6 +124,8 @@ class BookingBase(BaseModel):
     listing_id: str
     start_date: str
     end_date: str
+    duration_type: str = "daily"  # "hourly", "daily", "weekly"
+    hours: Optional[int] = None  # For hourly bookings
 
 class BookingCreate(BookingBase):
     pass
@@ -140,6 +142,8 @@ class BookingResponse(BookingBase):
     created_at: str
     listing_title: Optional[str] = None
     listing_image: Optional[str] = None
+    duration_type: str = "daily"
+    hours: Optional[int] = None
 
 class ReviewBase(BaseModel):
     listing_id: str
