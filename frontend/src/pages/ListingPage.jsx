@@ -600,12 +600,30 @@ export default function ListingPage() {
                 )}
 
                 {/* Price Breakdown */}
-                {totalPrice > 0 && (
+                {basePrice > 0 && (
                   <div className="space-y-2 mb-6 pb-6 border-b border-stone-100">
                     <div className="flex justify-between text-stone-600">
                       <span>{priceLabel}</span>
-                      <span>{formatPrice(totalPrice)}</span>
+                      <span>{formatPrice(basePrice)}</span>
                     </div>
+                    {surgeAmount > 0 && (
+                      <div className="flex justify-between text-amber-600">
+                        <span className="flex items-center gap-1">
+                          <TrendingUp className="h-3.5 w-3.5" />
+                          Peak pricing ({surgeDays || 1} {surgeDays === 1 ? 'day' : 'days'} × {listing.surge_percentage}%)
+                        </span>
+                        <span>+{formatPrice(surgeAmount)}</span>
+                      </div>
+                    )}
+                    {discountAmount > 0 && (
+                      <div className="flex justify-between text-teal-600">
+                        <span className="flex items-center gap-1">
+                          <Tag className="h-3.5 w-3.5" />
+                          {discountLabel}
+                        </span>
+                        <span>-{formatPrice(discountAmount)}</span>
+                      </div>
+                    )}
                     <div className="flex justify-between text-stone-600">
                       <span>Service fee (5%)</span>
                       <span>{formatPrice(platformFee)}</span>
