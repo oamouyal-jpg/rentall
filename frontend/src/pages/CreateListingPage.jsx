@@ -298,43 +298,163 @@ export default function CreateListingPage() {
             />
           </div>
 
-          {/* Price */}
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="price">Price per day</Label>
-              <div className="relative">
-                <DollarSign className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-stone-400" />
-                <Input
-                  id="price"
-                  type="number"
-                  step="0.01"
-                  min="0.01"
-                  placeholder="25.00"
-                  value={pricePerDay}
-                  onChange={(e) => setPricePerDay(e.target.value)}
-                  required
-                  className="h-12 pl-11 rounded-xl"
-                  data-testid="listing-price-input"
+          {/* Pricing Options */}
+          <div className="space-y-4">
+            <div>
+              <Label className="text-base font-medium">Pricing Options</Label>
+              <p className="text-sm text-stone-500 mt-1">
+                Set your rental rates. Enable multiple options to give renters flexibility.
+              </p>
+            </div>
+            
+            {/* Hourly Rate */}
+            <div className="bg-stone-50 rounded-xl p-4 space-y-3">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <Clock className="h-4 w-4 text-stone-500" />
+                  <Label htmlFor="hourly-toggle" className="font-medium">Hourly rate</Label>
+                </div>
+                <Switch
+                  id="hourly-toggle"
+                  checked={enableHourly}
+                  onCheckedChange={setEnableHourly}
+                  data-testid="hourly-toggle"
                 />
               </div>
+              {enableHourly && (
+                <div className="grid grid-cols-2 gap-3 pt-2">
+                  <div>
+                    <Label className="text-xs text-stone-500">Price per hour</Label>
+                    <div className="relative mt-1">
+                      <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-stone-400" />
+                      <Input
+                        type="number"
+                        step="0.01"
+                        min="0.01"
+                        placeholder="25.00"
+                        value={pricePerHour}
+                        onChange={(e) => setPricePerHour(e.target.value)}
+                        className="h-10 pl-9 rounded-lg"
+                        data-testid="price-per-hour-input"
+                      />
+                    </div>
+                  </div>
+                  <div>
+                    <Label className="text-xs text-stone-500">Minimum hours</Label>
+                    <Input
+                      type="number"
+                      min="1"
+                      placeholder="1"
+                      value={minHours}
+                      onChange={(e) => setMinHours(e.target.value)}
+                      className="h-10 rounded-lg mt-1"
+                      data-testid="min-hours-input"
+                    />
+                  </div>
+                </div>
+              )}
             </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="deposit">Damage deposit (optional)</Label>
-              <div className="relative">
-                <DollarSign className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-stone-400" />
-                <Input
-                  id="deposit"
-                  type="number"
-                  step="0.01"
-                  min="0"
-                  placeholder="0.00"
-                  value={damageDeposit}
-                  onChange={(e) => setDamageDeposit(e.target.value)}
-                  className="h-12 pl-11 rounded-xl"
-                  data-testid="listing-deposit-input"
+            {/* Daily Rate */}
+            <div className="bg-stone-50 rounded-xl p-4 space-y-3">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <Calendar className="h-4 w-4 text-stone-500" />
+                  <Label htmlFor="daily-toggle" className="font-medium">Daily rate</Label>
+                </div>
+                <Switch
+                  id="daily-toggle"
+                  checked={enableDaily}
+                  onCheckedChange={setEnableDaily}
+                  data-testid="daily-toggle"
                 />
               </div>
+              {enableDaily && (
+                <div className="grid grid-cols-2 gap-3 pt-2">
+                  <div>
+                    <Label className="text-xs text-stone-500">Price per day</Label>
+                    <div className="relative mt-1">
+                      <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-stone-400" />
+                      <Input
+                        type="number"
+                        step="0.01"
+                        min="0.01"
+                        placeholder="75.00"
+                        value={pricePerDay}
+                        onChange={(e) => setPricePerDay(e.target.value)}
+                        className="h-10 pl-9 rounded-lg"
+                        data-testid="price-per-day-input"
+                      />
+                    </div>
+                  </div>
+                  <div>
+                    <Label className="text-xs text-stone-500">Minimum days</Label>
+                    <Input
+                      type="number"
+                      min="1"
+                      placeholder="1"
+                      value={minDays}
+                      onChange={(e) => setMinDays(e.target.value)}
+                      className="h-10 rounded-lg mt-1"
+                      data-testid="min-days-input"
+                    />
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Weekly Rate */}
+            <div className="bg-stone-50 rounded-xl p-4 space-y-3">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <CalendarRange className="h-4 w-4 text-stone-500" />
+                  <Label htmlFor="weekly-toggle" className="font-medium">Weekly rate</Label>
+                  <span className="text-xs text-teal-600 bg-teal-50 px-2 py-0.5 rounded-full">Save more</span>
+                </div>
+                <Switch
+                  id="weekly-toggle"
+                  checked={enableWeekly}
+                  onCheckedChange={setEnableWeekly}
+                  data-testid="weekly-toggle"
+                />
+              </div>
+              {enableWeekly && (
+                <div className="pt-2">
+                  <Label className="text-xs text-stone-500">Price per week</Label>
+                  <div className="relative mt-1">
+                    <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-stone-400" />
+                    <Input
+                      type="number"
+                      step="0.01"
+                      min="0.01"
+                      placeholder="400.00"
+                      value={pricePerWeek}
+                      onChange={(e) => setPricePerWeek(e.target.value)}
+                      className="h-10 pl-9 rounded-lg"
+                      data-testid="price-per-week-input"
+                    />
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* Damage Deposit */}
+          <div className="space-y-2">
+            <Label htmlFor="deposit">Damage deposit (optional)</Label>
+            <div className="relative">
+              <DollarSign className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-stone-400" />
+              <Input
+                id="deposit"
+                type="number"
+                step="0.01"
+                min="0"
+                placeholder="0.00"
+                value={damageDeposit}
+                onChange={(e) => setDamageDeposit(e.target.value)}
+                className="h-12 pl-11 rounded-xl"
+                data-testid="listing-deposit-input"
+              />
             </div>
           </div>
 
