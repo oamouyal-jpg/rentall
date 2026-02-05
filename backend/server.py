@@ -645,7 +645,7 @@ async def create_booking(
     start_date = datetime.fromisoformat(booking_data.start_date)
     end_date = datetime.fromisoformat(booking_data.end_date)
     
-    if end_date <= start_date:
+    if end_date < start_date:
         raise HTTPException(status_code=400, detail="End date must be after start date")
     
     conflict = await db.bookings.find_one({
@@ -659,12 +659,42 @@ async def create_booking(
     if conflict:
         raise HTTPException(status_code=400, detail="Dates not available")
     
-    # Calculate price
-    days = (end_date - start_date).days
-    if days < 1:
-        days = 1
+    # Calculate price based on duration type
+    duration_type = booking_data.duration_type or "daily"
+    hours = booking_data.hours
     
-    total_price = round(listing["price_per_day"] * days, 2)
+    if duration_type == "hourly":
+        price_per_hour = listing.get("price_per_hour")
+        if not price_per_hour:
+            raise HTTPException(status_code=400, detail="Hourly rental not available for this listing")
+        if not hours or hours < 1:
+            raise HTTPException(status_code=400, detail="Hours must be specified for hourly booking")
+        min_hours = listing.get("min_rental_hours", 1)
+        if hours < min_hours:
+            raise HTTPException(status_code=400, detail=f"Minimum {min_hours} hours required")
+        total_price = round(price_per_hour * hours, 2)
+    elif duration_type == "weekly":
+        price_per_week = listing.get("price_per_week")
+        if not price_per_week:
+            raise HTTPException(status_code=400, detail="Weekly rental not available for this listing")
+        days = (end_date - start_date).days
+        weeks = max(1, days // 7)
+        remaining_days = days % 7
+        # Charge for full weeks + pro-rated days
+        price_per_day = listing.get("price_per_day", price_per_week / 7)
+        total_price = round((price_per_week * weeks) + (price_per_day * remaining_days), 2)
+    else:  # daily (default)
+        price_per_day = listing.get("price_per_day")
+        if not price_per_day:
+            raise HTTPException(status_code=400, detail="Daily rental not available for this listing")
+        days = (end_date - start_date).days
+        if days < 1:
+            days = 1
+        min_days = listing.get("min_rental_days", 1)
+        if days < min_days:
+            raise HTTPException(status_code=400, detail=f"Minimum {min_days} days required")
+        total_price = round(price_per_day * days, 2)
+    
     platform_fee = round(total_price * (PLATFORM_FEE_PERCENT / 100), 2)
     
     booking_id = str(uuid.uuid4())
@@ -672,12 +702,14 @@ async def create_booking(
         "id": booking_id,
         "listing_id": booking_data.listing_id,
         "listing_title": listing["title"],
-        "listing_image": listing["images"][0] if listing["images"] else None,
+        "listing_image": listing["images"][0] if listing.get("images") else None,
         "renter_id": current_user["id"],
         "renter_name": current_user["name"],
         "owner_id": listing["owner_id"],
         "start_date": booking_data.start_date,
         "end_date": booking_data.end_date,
+        "duration_type": duration_type,
+        "hours": hours,
         "total_price": total_price,
         "platform_fee": platform_fee,
         "status": "pending",
