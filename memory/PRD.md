@@ -58,6 +58,7 @@ Build an app similar to Airbnb but for renting anything - from music instruments
 - [x] Review system (post-rental)
 - [x] Image upload functionality
 - [x] Payout tracking system
+- [x] Flexible pricing (hourly/daily/weekly rates)
 - [x] Safety & Trust pages
 
 ## What's Been Implemented (Feb 5, 2026)
