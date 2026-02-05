@@ -187,6 +187,8 @@ export default function ListingPage() {
   const hasHourly = listing.price_per_hour && listing.price_per_hour > 0;
   const hasDaily = listing.price_per_day && listing.price_per_day > 0;
   const hasWeekly = listing.price_per_week && listing.price_per_week > 0;
+  const hasSurge = listing.surge_enabled;
+  const hasDiscounts = (listing.discount_weekly > 0) || (listing.discount_monthly > 0) || (listing.discount_quarterly > 0);
   
   // Set default duration type based on available pricing
   const defaultDurationType = hasHourly ? 'hourly' : hasDaily ? 'daily' : 'weekly';
@@ -196,24 +198,66 @@ export default function ListingPage() {
       ? differenceInDays(dateRange.to, dateRange.from)
       : 0;
   
-  // Calculate price based on duration type
-  let totalPrice = 0;
+  // Count surge days if applicable
+  let surgeDays = 0;
+  if (hasSurge && dateRange.from && (durationType === 'daily' || durationType === 'weekly')) {
+    const endDate = dateRange.to || dateRange.from;
+    let current = new Date(dateRange.from);
+    while (current < endDate) {
+      const dayOfWeek = current.getDay();
+      if (listing.surge_weekends && (dayOfWeek === 0 || dayOfWeek === 6)) {
+        surgeDays++;
+      }
+      current = addDays(current, 1);
+    }
+  }
+  
+  // Calculate base price
+  let basePrice = 0;
   let priceLabel = '';
   
   if (durationType === 'hourly' && hasHourly) {
-    totalPrice = listing.price_per_hour * hours;
+    basePrice = listing.price_per_hour * hours;
     priceLabel = `${formatPrice(listing.price_per_hour)} × ${hours} hours`;
   } else if (durationType === 'weekly' && hasWeekly) {
     const weeks = Math.floor(days / 7) || 1;
     const remainingDays = days % 7;
     const dailyRate = listing.price_per_day || (listing.price_per_week / 7);
-    totalPrice = (listing.price_per_week * weeks) + (dailyRate * remainingDays);
+    basePrice = (listing.price_per_week * weeks) + (dailyRate * remainingDays);
     priceLabel = weeks > 0 ? `${formatPrice(listing.price_per_week)} × ${weeks} week${weeks > 1 ? 's' : ''}${remainingDays > 0 ? ` + ${remainingDays} days` : ''}` : '';
   } else if (hasDaily) {
-    totalPrice = days > 0 ? listing.price_per_day * days : 0;
+    basePrice = days > 0 ? listing.price_per_day * days : 0;
     priceLabel = days > 0 ? `${formatPrice(listing.price_per_day)} × ${days} days` : '';
   }
   
+  // Calculate surge amount
+  let surgeAmount = 0;
+  if (hasSurge && surgeDays > 0 && durationType !== 'hourly') {
+    const dailyRate = listing.price_per_day || (listing.price_per_week / 7);
+    surgeAmount = (dailyRate * surgeDays) * (listing.surge_percentage / 100);
+  } else if (hasSurge && durationType === 'hourly' && dateRange.from) {
+    const dayOfWeek = dateRange.from.getDay();
+    if (listing.surge_weekends && (dayOfWeek === 0 || dayOfWeek === 6)) {
+      surgeAmount = basePrice * (listing.surge_percentage / 100);
+    }
+  }
+  
+  // Calculate discount
+  let discountAmount = 0;
+  let discountLabel = '';
+  const totalDays = durationType === 'hourly' ? 1 : days;
+  if (totalDays >= 90 && listing.discount_quarterly > 0) {
+    discountAmount = (basePrice + surgeAmount) * (listing.discount_quarterly / 100);
+    discountLabel = `${listing.discount_quarterly}% off (90+ days)`;
+  } else if (totalDays >= 30 && listing.discount_monthly > 0) {
+    discountAmount = (basePrice + surgeAmount) * (listing.discount_monthly / 100);
+    discountLabel = `${listing.discount_monthly}% off (30+ days)`;
+  } else if (totalDays >= 7 && listing.discount_weekly > 0) {
+    discountAmount = (basePrice + surgeAmount) * (listing.discount_weekly / 100);
+    discountLabel = `${listing.discount_weekly}% off (7+ days)`;
+  }
+  
+  const totalPrice = basePrice + surgeAmount - discountAmount;
   const platformFee = totalPrice * 0.05;
   const isOwner = user?.id === listing.owner_id;
 
