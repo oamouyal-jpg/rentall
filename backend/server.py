@@ -153,6 +153,12 @@ class BookingResponse(BookingBase):
     listing_image: Optional[str] = None
     duration_type: str = "daily"
     hours: Optional[int] = None
+    # Surge pricing info
+    surge_days: Optional[int] = 0
+    surge_percentage: Optional[float] = 0
+    # Discount info
+    discount_applied: Optional[float] = 0
+    discount_label: Optional[str] = None
 
 class ReviewBase(BaseModel):
     listing_id: str
