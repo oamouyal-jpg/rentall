@@ -1,0 +1,214 @@
+{
+  "common": {
+    "search": "Search",
+    "login": "Log in",
+    "signup": "Sign up",
+    "logout": "Log out",
+    "home": "Home",
+    "messages": "Messages",
+    "dashboard": "Dashboard",
+    "settings": "Settings",
+    "loading": "Loading...",
+    "save": "Save",
+    "cancel": "Cancel",
+    "submit": "Submit",
+    "back": "Back",
+    "next": "Next",
+    "or": "or",
+    "and": "and"
+  },
+  "nav": {
+    "searchPlaceholder": "Search for anything...",
+    "listItem": "List an item"
+  },
+  "home": {
+    "hero": {
+      "title": "Rent anything,",
+      "titleLine2": "anywhere",
+      "subtitle": "Cars, bikes, heavy machinery, tools, tradies, party gear — if it exists, you can rent it. Save thousands, access anything, anytime.",
+      "searchPlaceholder": "What do you need?"
+    },
+    "features": {
+      "securePayments": "Secure Payments",
+      "securePaymentsDesc": "All transactions are protected through our platform.",
+      "easyBooking": "Easy Booking",
+      "easyBookingDesc": "Book items instantly or message owners directly.",
+      "greatValue": "Great Value",
+      "greatValueDesc": "Save money by renting instead of buying."
+    },
+    "categories": "Popular Categories",
+    "featuredListings": "Featured Listings"
+  },
+  "auth": {
+    "login": {
+      "title": "Welcome back",
+      "subtitle": "Log in to your RentAll account",
+      "email": "Email",
+      "password": "Password",
+      "button": "Log in",
+      "noAccount": "Don't have an account?",
+      "signupLink": "Sign up"
+    },
+    "register": {
+      "title": "Create an account",
+      "subtitle": "Join RentAll and start renting today",
+      "name": "Full name",
+      "email": "Email",
+      "password": "Password",
+      "passwordHint": "Must be at least 6 characters",
+      "button": "Create account",
+      "hasAccount": "Already have an account?",
+      "loginLink": "Log in"
+    }
+  },
+  "listing": {
+    "create": {
+      "title": "List an item",
+      "subtitle": "Share your stuff and start earning. You keep 95% of every rental.",
+      "photos": "Photos",
+      "photosHint": "Add up to 5 photos. First photo will be the cover image.",
+      "addPhoto": "Add photo",
+      "itemTitle": "Title",
+      "titlePlaceholder": "What are you renting out?",
+      "category": "Category",
+      "categoryPlaceholder": "Select a category",
+      "description": "Description",
+      "descriptionPlaceholder": "Describe your item, its condition, and any requirements...",
+      "location": "Location",
+      "locationPlaceholder": "City, State",
+      "damageDeposit": "Damage deposit (optional)",
+      "createButton": "Create listing"
+    },
+    "pricing": {
+      "title": "Pricing Options",
+      "subtitle": "Set your rental rates. Enable multiple options to give renters flexibility.",
+      "hourlyRate": "Hourly rate",
+      "dailyRate": "Daily rate",
+      "weeklyRate": "Weekly rate",
+      "pricePerHour": "Price per hour",
+      "pricePerDay": "Price per day",
+      "pricePerWeek": "Price per week",
+      "minHours": "Minimum hours",
+      "minDays": "Minimum days",
+      "saveMore": "Save more"
+    },
+    "surge": {
+      "title": "Peak pricing",
+      "earnMore": "Earn more",
+      "subtitle": "Charge higher rates during busy periods like weekends.",
+      "percentage": "Surge percentage",
+      "weekends": "Apply surge on weekends (Sat & Sun)"
+    },
+    "discounts": {
+      "title": "Long-term Discounts",
+      "subtitle": "Attract more bookings by offering discounts for longer rentals.",
+      "weekly": "7+ days",
+      "monthly": "30+ days",
+      "quarterly": "90+ days"
+    },
+    "whatNext": {
+      "title": "What happens next?",
+      "live": "Your listing will be live immediately",
+      "message": "Renters can message you or book directly",
+      "earnings": "You'll receive 95% of each booking (we take 5%)",
+      "payouts": "Payouts are processed after rental completion"
+    },
+    "detail": {
+      "aboutItem": "About this item",
+      "location": "Location",
+      "reviews": "Reviews",
+      "noReviews": "No reviews yet",
+      "messageOwner": "Message",
+      "manageListing": "Manage listing"
+    }
+  },
+  "booking": {
+    "selectDates": "Select dates",
+    "selectDate": "Select date",
+    "hours": "Number of hours",
+    "serviceFee": "Service fee (5%)",
+    "total": "Total",
+    "bookNow": "Book now",
+    "selectDatesToBook": "Select dates to book",
+    "selectDateAndHours": "Select date and hours",
+    "peakPricing": "Peak pricing",
+    "discount": "off",
+    "securePayment": "Secure payment through Stripe"
+  },
+  "categories": {
+    "cars": "Cars",
+    "motorcycles": "Motorcycles",
+    "bikes": "Bikes",
+    "scooters": "Scooters",
+    "boats": "Boats",
+    "rvs": "RVs & Campers",
+    "heavyMachinery": "Heavy Machinery",
+    "tractors": "Tractors",
+    "forklifts": "Forklifts",
+    "trailers": "Trailers",
+    "tradies": "Tradies & Handymen",
+    "cleaners": "Cleaners",
+    "gardeners": "Gardeners",
+    "movers": "Movers",
+    "tools": "Tools & DIY",
+    "powerTools": "Power Tools",
+    "ladders": "Ladders",
+    "partyEvents": "Party & Events",
+    "speakers": "Speakers & Audio",
+    "lighting": "Lighting",
+    "tents": "Tents & Marquees",
+    "tables": "Tables & Chairs",
+    "sports": "Sports Equipment",
+    "camping": "Camping & Hiking",
+    "waterSports": "Water Sports",
+    "winterSports": "Winter Sports",
+    "tech": "Tech & Electronics",
+    "cameras": "Cameras",
+    "drones": "Drones",
+    "gaming": "Gaming",
+    "fashion": "Fashion",
+    "musical": "Musical Instruments",
+    "baby": "Baby & Kids"
+  },
+  "footer": {
+    "about": "About",
+    "howItWorks": "How it works",
+    "safety": "Safety",
+    "support": "Support",
+    "legal": "Legal",
+    "terms": "Terms of Service",
+    "privacy": "Privacy Policy",
+    "copyright": "© 2026 RentAll. All rights reserved."
+  },
+  "messages": {
+    "title": "Messages",
+    "noConversations": "No conversations yet",
+    "startConversation": "Start a conversation by messaging a listing owner",
+    "typeMessage": "Type a message...",
+    "send": "Send"
+  },
+  "dashboard": {
+    "title": "Dashboard",
+    "myListings": "My Listings",
+    "myRentals": "My Rentals",
+    "requests": "Requests",
+    "noListings": "No listings yet",
+    "createFirst": "Create your first listing",
+    "noRentals": "No rentals yet",
+    "browseItems": "Browse items to rent",
+    "noRequests": "No booking requests"
+  },
+  "settings": {
+    "title": "Settings",
+    "profile": "Profile",
+    "verification": "Verification",
+    "payments": "Payments",
+    "language": "Language",
+    "phoneVerification": "Phone Verification",
+    "verifyPhone": "Verify your phone",
+    "phoneVerified": "Phone verified",
+    "stripeConnect": "Stripe Connect",
+    "setupPayouts": "Set up payouts",
+    "payoutsEnabled": "Payouts enabled"
+  }
+}
