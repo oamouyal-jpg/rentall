@@ -198,11 +198,8 @@ export default function HomePage() {
           <div className="flex items-end justify-between mb-8">
             <div>
               <h2 className="text-3xl md:text-4xl font-bold text-stone-900 font-heading tracking-tight">
-                Popular rentals near you
+                {t('home.featuredListings')}
               </h2>
-              <p className="text-stone-600 mt-2">
-                Top-rated items from your community
-              </p>
             </div>
             <Link 
               to="/search"
