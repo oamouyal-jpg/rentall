@@ -164,7 +164,7 @@ export default function Navbar() {
                     className="text-stone-700 hover:text-stone-900"
                     data-testid="login-btn"
                   >
-                    Log in
+                    {t('common.login')}
                   </Button>
                 </Link>
                 <Link to="/register">
@@ -172,7 +172,7 @@ export default function Navbar() {
                     className="bg-[#E05D44] hover:bg-[#C54E36] text-white rounded-full px-6"
                     data-testid="signup-btn"
                   >
-                    Sign up
+                    {t('common.signup')}
                   </Button>
                 </Link>
               </>
