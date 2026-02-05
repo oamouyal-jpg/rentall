@@ -57,10 +57,10 @@ export default function HomePage() {
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24 md:py-32">
           <div className="max-w-2xl">
             <h1 className="text-4xl md:text-6xl font-bold text-white mb-6 font-heading tracking-tight">
-              Rent anything, anywhere
+              {t('home.hero.title')}<br/>{t('home.hero.titleLine2')}
             </h1>
             <p className="text-lg md:text-xl text-stone-200 mb-8 leading-relaxed">
-              Cars, bikes, heavy machinery, tools, tradies, party gear — if it exists, you can rent it. Save thousands, access anything, anytime.
+              {t('home.hero.subtitle')}
             </p>
 
             {/* Search Bar */}
@@ -69,7 +69,7 @@ export default function HomePage() {
                 <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-stone-400" />
                 <Input
                   type="text"
-                  placeholder="What do you need?"
+                  placeholder={t('home.hero.searchPlaceholder')}
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   className="pl-12 h-14 rounded-full border-0 text-lg bg-white shadow-lg"
@@ -81,7 +81,7 @@ export default function HomePage() {
                 className="h-14 px-8 rounded-full bg-[#E05D44] hover:bg-[#C54E36] text-white font-medium btn-press"
                 data-testid="hero-search-btn"
               >
-                Search
+                {t('common.search')}
               </Button>
             </form>
 
