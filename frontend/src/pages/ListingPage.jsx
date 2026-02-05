@@ -8,6 +8,7 @@ import { Button } from '../components/ui/button';
 import { Calendar } from '../components/ui/calendar';
 import { Avatar, AvatarFallback, AvatarImage } from '../components/ui/avatar';
 import { Textarea } from '../components/ui/textarea';
+import { Input } from '../components/ui/input';
 import {
   Dialog,
   DialogContent,
@@ -15,6 +16,12 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '../components/ui/dialog';
+import {
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
+} from '../components/ui/tabs';
 import ReviewCard from '../components/ReviewCard';
 import StaticMap from '../components/StaticMap';
 import { formatPrice, formatDate, getInitials } from '../lib/utils';
@@ -28,6 +35,8 @@ import {
   Shield,
   Loader2,
   Send,
+  Clock,
+  CalendarRange,
 } from 'lucide-react';
 
 export default function ListingPage() {
