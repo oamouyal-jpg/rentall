@@ -7,6 +7,7 @@ import { Button } from '../components/ui/button';
 import { Input } from '../components/ui/input';
 import { Label } from '../components/ui/label';
 import { Textarea } from '../components/ui/textarea';
+import { Switch } from '../components/ui/switch';
 import {
   Select,
   SelectContent,
@@ -14,7 +15,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '../components/ui/select';
-import { Loader2, Upload, X, MapPin, Image as ImageIcon, DollarSign } from 'lucide-react';
+import { Loader2, Upload, X, MapPin, Image as ImageIcon, DollarSign, Clock, Calendar, CalendarRange } from 'lucide-react';
 
 export default function CreateListingPage() {
   const { user, loading: authLoading } = useAuth();
@@ -28,7 +29,17 @@ export default function CreateListingPage() {
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [category, setCategory] = useState('');
+  
+  // Flexible pricing
+  const [enableHourly, setEnableHourly] = useState(false);
+  const [enableDaily, setEnableDaily] = useState(true);
+  const [enableWeekly, setEnableWeekly] = useState(false);
+  const [pricePerHour, setPricePerHour] = useState('');
   const [pricePerDay, setPricePerDay] = useState('');
+  const [pricePerWeek, setPricePerWeek] = useState('');
+  const [minHours, setMinHours] = useState('1');
+  const [minDays, setMinDays] = useState('1');
+  
   const [location, setLocation] = useState('');
   const [latitude, setLatitude] = useState(40.7128);
   const [longitude, setLongitude] = useState(-74.0060);
