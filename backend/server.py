@@ -671,6 +671,30 @@ async def create_booking(
     # Calculate price based on duration type
     duration_type = booking_data.duration_type or "daily"
     hours = booking_data.hours
+    days = (end_date - start_date).days or 1
+    
+    # Helper function to check if a date has surge pricing
+    def is_surge_date(check_date: datetime) -> bool:
+        if not listing.get("surge_enabled", False):
+            return False
+        # Check weekends
+        if listing.get("surge_weekends", True) and check_date.weekday() >= 5:
+            return True
+        # Check custom surge dates
+        surge_dates = listing.get("surge_dates", [])
+        date_str = check_date.strftime("%Y-%m-%d")
+        return date_str in surge_dates
+    
+    # Count surge days
+    surge_days = 0
+    if listing.get("surge_enabled", False) and duration_type in ["daily", "weekly"]:
+        current = start_date
+        while current < end_date:
+            if is_surge_date(current):
+                surge_days += 1
+            current += timedelta(days=1)
+    
+    surge_percentage = listing.get("surge_percentage", 20.0) or 20.0
     
     if duration_type == "hourly":
         price_per_hour = listing.get("price_per_hour")
@@ -681,28 +705,58 @@ async def create_booking(
         min_hours = listing.get("min_rental_hours", 1)
         if hours < min_hours:
             raise HTTPException(status_code=400, detail=f"Minimum {min_hours} hours required")
-        total_price = round(price_per_hour * hours, 2)
+        base_price = price_per_hour * hours
+        # Apply surge for hourly if booking date is a surge date
+        if is_surge_date(start_date):
+            surge_amount = base_price * (surge_percentage / 100)
+            total_price = round(base_price + surge_amount, 2)
+        else:
+            total_price = round(base_price, 2)
     elif duration_type == "weekly":
         price_per_week = listing.get("price_per_week")
         if not price_per_week:
             raise HTTPException(status_code=400, detail="Weekly rental not available for this listing")
-        days = (end_date - start_date).days
         weeks = max(1, days // 7)
         remaining_days = days % 7
-        # Charge for full weeks + pro-rated days
         price_per_day = listing.get("price_per_day") or (price_per_week / 7)
-        total_price = round((price_per_week * weeks) + (price_per_day * remaining_days), 2)
+        base_price = (price_per_week * weeks) + (price_per_day * remaining_days)
+        # Apply surge for surge days
+        if surge_days > 0:
+            surge_amount = (price_per_day * surge_days) * (surge_percentage / 100)
+            base_price += surge_amount
+        total_price = round(base_price, 2)
     else:  # daily (default)
         price_per_day = listing.get("price_per_day")
         if not price_per_day:
             raise HTTPException(status_code=400, detail="Daily rental not available for this listing")
-        days = (end_date - start_date).days
         if days < 1:
             days = 1
         min_days = listing.get("min_rental_days", 1)
         if days < min_days:
             raise HTTPException(status_code=400, detail=f"Minimum {min_days} days required")
-        total_price = round(price_per_day * days, 2)
+        
+        # Calculate base price
+        normal_days = days - surge_days
+        base_price = price_per_day * normal_days
+        surge_price = price_per_day * surge_days * (1 + surge_percentage / 100)
+        total_price = round(base_price + surge_price, 2)
+    
+    # Apply long-term discounts
+    discount_applied = 0.0
+    discount_label = None
+    if days >= 90 and listing.get("discount_quarterly", 0) > 0:
+        discount_applied = listing["discount_quarterly"]
+        discount_label = "90+ days"
+    elif days >= 30 and listing.get("discount_monthly", 0) > 0:
+        discount_applied = listing["discount_monthly"]
+        discount_label = "30+ days"
+    elif days >= 7 and listing.get("discount_weekly", 0) > 0:
+        discount_applied = listing["discount_weekly"]
+        discount_label = "7+ days"
+    
+    if discount_applied > 0:
+        discount_amount = total_price * (discount_applied / 100)
+        total_price = round(total_price - discount_amount, 2)
     
     platform_fee = round(total_price * (PLATFORM_FEE_PERCENT / 100), 2)
     
