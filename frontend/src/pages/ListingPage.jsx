@@ -102,18 +102,33 @@ export default function ListingPage() {
       return;
     }
 
-    if (!dateRange.from || !dateRange.to) {
-      toast.error('Please select dates');
-      return;
+    if (durationType === 'hourly') {
+      if (!dateRange.from) {
+        toast.error('Please select a date');
+        return;
+      }
+      if (hours < (listing.min_rental_hours || 1)) {
+        toast.error(`Minimum ${listing.min_rental_hours || 1} hours required`);
+        return;
+      }
+    } else {
+      if (!dateRange.from || !dateRange.to) {
+        toast.error('Please select dates');
+        return;
+      }
     }
 
     setBooking(true);
     try {
-      const bookingRes = await bookingsAPI.create({
+      const bookingData = {
         listing_id: id,
         start_date: format(dateRange.from, 'yyyy-MM-dd'),
-        end_date: format(dateRange.to, 'yyyy-MM-dd'),
-      });
+        end_date: format(dateRange.to || dateRange.from, 'yyyy-MM-dd'),
+        duration_type: durationType,
+        hours: durationType === 'hourly' ? hours : null,
+      };
+      
+      const bookingRes = await bookingsAPI.create(bookingData);
 
       // Create checkout session
       const checkoutRes = await paymentsAPI.createCheckout({
