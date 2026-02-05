@@ -124,9 +124,9 @@ export default function HomePage() {
                 <Clock className="h-6 w-6 text-[#8DA399]" />
               </div>
               <div>
-                <h3 className="font-semibold text-stone-900 mb-1 font-heading">Easy Booking</h3>
+                <h3 className="font-semibold text-stone-900 mb-1 font-heading">{t('home.features.easyBooking')}</h3>
                 <p className="text-stone-600 text-sm leading-relaxed">
-                  Book instantly or request dates. Flexible scheduling for everyone.
+                  {t('home.features.easyBookingDesc')}
                 </p>
               </div>
             </div>
@@ -135,9 +135,9 @@ export default function HomePage() {
                 <DollarSign className="h-6 w-6 text-amber-500" />
               </div>
               <div>
-                <h3 className="font-semibold text-stone-900 mb-1 font-heading">Great Value</h3>
+                <h3 className="font-semibold text-stone-900 mb-1 font-heading">{t('home.features.greatValue')}</h3>
                 <p className="text-stone-600 text-sm leading-relaxed">
-                  Why buy when you can rent? Save money on items you only need occasionally.
+                  {t('home.features.greatValueDesc')}
                 </p>
               </div>
             </div>
@@ -151,11 +151,8 @@ export default function HomePage() {
           <div className="flex items-end justify-between mb-8">
             <div>
               <h2 className="text-3xl md:text-4xl font-bold text-stone-900 font-heading tracking-tight">
-                Browse by category
+                {t('home.categories')}
               </h2>
-              <p className="text-stone-600 mt-2">
-                Over 30 categories — from cars to tradies to party gear
-              </p>
             </div>
             <Link 
               to="/search"
