@@ -23,6 +23,7 @@ import SettingsPage from "./pages/SettingsPage";
 // Components
 import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
+import { InstallPrompt } from "./components/InstallPrompt";
 
 function App() {
   return (
