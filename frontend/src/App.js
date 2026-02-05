@@ -52,6 +52,7 @@ function App() {
             </Routes>
           </main>
           <Footer />
+          <MobileNavbar />
           <InstallPrompt />
           <Toaster 
             position="top-right" 
