@@ -681,7 +681,7 @@ async def create_booking(
         weeks = max(1, days // 7)
         remaining_days = days % 7
         # Charge for full weeks + pro-rated days
-        price_per_day = listing.get("price_per_day", price_per_week / 7)
+        price_per_day = listing.get("price_per_day") or (price_per_week / 7)
         total_price = round((price_per_week * weeks) + (price_per_day * remaining_days), 2)
     else:  # daily (default)
         price_per_day = listing.get("price_per_day")
