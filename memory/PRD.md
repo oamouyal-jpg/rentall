@@ -106,7 +106,7 @@ Build an app similar to Airbnb but for renting anything - from music instruments
 - **Hours Selector**: +/- buttons to select hours for hourly bookings
 - **Pro-rated Weekly**: Weekly bookings with extra days pro-rated at daily rate
 
-### Phase 6 - Surge Pricing & Long-term Discounts ✅ NEW (Feb 5, 2026)
+### Phase 6 - Surge Pricing & Long-term Discounts (Feb 5, 2026)
 - **Peak Pricing**: Owners can enable surge pricing for weekends
 - **Surge Percentage**: Configurable surge % (default 20%)
 - **Weekend Detection**: Automatically applies surge for Sat/Sun bookings
@@ -115,6 +115,15 @@ Build an app similar to Airbnb but for renting anything - from music instruments
 - **90+ Day Discount**: Owners set discount % for quarterly rentals
 - **Price Breakdown**: Shows surge (amber) and discounts (teal) separately
 - **Smart Calculation**: Backend handles surge + discount combinations
+
+### Phase 7 - Multi-Language Support ✅ NEW (Feb 5, 2026)
+- **Languages**: English, Spanish, French
+- **Browser Detection**: Auto-detects user's browser language
+- **Language Selector**: Globe icon in navbar with dropdown
+- **LocalStorage**: Persists language preference across sessions
+- **Translations**: UI elements, navigation, homepage, features
+- **Library**: react-i18next with i18next-browser-languagedetector
+- **Translation Files**: /app/frontend/src/i18n/locales/[lang].json
 
 ## Pages
 - `/` - Homepage with hero, categories, featured listings
