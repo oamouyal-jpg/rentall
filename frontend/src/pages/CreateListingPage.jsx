@@ -8,6 +8,7 @@ import { Input } from '../components/ui/input';
 import { Label } from '../components/ui/label';
 import { Textarea } from '../components/ui/textarea';
 import { Switch } from '../components/ui/switch';
+import { Checkbox } from '../components/ui/checkbox';
 import {
   Select,
   SelectContent,
@@ -15,7 +16,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '../components/ui/select';
-import { Loader2, Upload, X, MapPin, Image as ImageIcon, DollarSign, Clock, Calendar, CalendarRange } from 'lucide-react';
+import { Loader2, Upload, X, MapPin, Image as ImageIcon, DollarSign, Clock, Calendar, CalendarRange, TrendingUp, Percent, Tag } from 'lucide-react';
 
 export default function CreateListingPage() {
   const { user, loading: authLoading } = useAuth();
@@ -39,6 +40,16 @@ export default function CreateListingPage() {
   const [pricePerWeek, setPricePerWeek] = useState('');
   const [minHours, setMinHours] = useState('1');
   const [minDays, setMinDays] = useState('1');
+  
+  // Surge pricing
+  const [surgeEnabled, setSurgeEnabled] = useState(false);
+  const [surgePercentage, setSurgePercentage] = useState('20');
+  const [surgeWeekends, setSurgeWeekends] = useState(true);
+  
+  // Long-term discounts
+  const [discountWeekly, setDiscountWeekly] = useState('');
+  const [discountMonthly, setDiscountMonthly] = useState('');
+  const [discountQuarterly, setDiscountQuarterly] = useState('');
   
   const [location, setLocation] = useState('');
   const [latitude, setLatitude] = useState(40.7128);
