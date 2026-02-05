@@ -162,6 +162,15 @@ export default function CreateListingPage() {
         price_per_week: hasWeeklyPrice ? parseFloat(pricePerWeek) : null,
         min_rental_hours: enableHourly ? parseInt(minHours) || 1 : 1,
         min_rental_days: enableDaily ? parseInt(minDays) || 1 : 1,
+        // Surge pricing
+        surge_enabled: surgeEnabled,
+        surge_percentage: surgeEnabled ? parseFloat(surgePercentage) || 20 : 20,
+        surge_weekends: surgeWeekends,
+        surge_dates: [],
+        // Long-term discounts
+        discount_weekly: discountWeekly ? parseFloat(discountWeekly) : 0,
+        discount_monthly: discountMonthly ? parseFloat(discountMonthly) : 0,
+        discount_quarterly: discountQuarterly ? parseFloat(discountQuarterly) : 0,
         location,
         latitude,
         longitude,
