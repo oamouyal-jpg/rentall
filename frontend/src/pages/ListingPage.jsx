@@ -416,42 +416,150 @@ export default function ListingPage() {
           <div className="lg:col-span-5">
             <div className="sticky top-24">
               <div className="bg-white rounded-2xl border border-stone-200 p-6 shadow-sm">
-                {/* Price */}
-                <div className="flex items-baseline gap-1 mb-6">
-                  <span className="text-2xl font-bold text-stone-900">
-                    {formatPrice(listing.price_per_day)}
-                  </span>
-                  <span className="text-stone-500">/ day</span>
+                {/* Price Display */}
+                <div className="mb-6">
+                  <div className="flex flex-wrap gap-3">
+                    {hasHourly && (
+                      <div className={`flex items-baseline gap-1 px-3 py-1.5 rounded-full ${durationType === 'hourly' ? 'bg-[#E05D44]/10 text-[#E05D44]' : 'bg-stone-100 text-stone-600'}`}>
+                        <Clock className="h-3.5 w-3.5 mr-1" />
+                        <span className="font-bold">{formatPrice(listing.price_per_hour)}</span>
+                        <span className="text-sm">/hr</span>
+                      </div>
+                    )}
+                    {hasDaily && (
+                      <div className={`flex items-baseline gap-1 px-3 py-1.5 rounded-full ${durationType === 'daily' ? 'bg-[#E05D44]/10 text-[#E05D44]' : 'bg-stone-100 text-stone-600'}`}>
+                        <CalendarIcon className="h-3.5 w-3.5 mr-1" />
+                        <span className="font-bold">{formatPrice(listing.price_per_day)}</span>
+                        <span className="text-sm">/day</span>
+                      </div>
+                    )}
+                    {hasWeekly && (
+                      <div className={`flex items-baseline gap-1 px-3 py-1.5 rounded-full ${durationType === 'weekly' ? 'bg-[#E05D44]/10 text-[#E05D44]' : 'bg-stone-100 text-stone-600'}`}>
+                        <CalendarRange className="h-3.5 w-3.5 mr-1" />
+                        <span className="font-bold">{formatPrice(listing.price_per_week)}</span>
+                        <span className="text-sm">/wk</span>
+                      </div>
+                    )}
+                  </div>
                 </div>
 
-                {/* Calendar */}
-                <div className="mb-6">
-                  <label className="text-sm font-medium text-stone-700 mb-2 flex items-center gap-2">
-                    <CalendarIcon className="h-4 w-4" />
-                    Select dates
-                  </label>
-                  <Calendar
-                    mode="range"
-                    selected={dateRange}
-                    onSelect={setDateRange}
-                    disabled={(date) =>
-                      date < new Date() ||
-                      bookedDates.some(
-                        (d) => d.toDateString() === date.toDateString()
-                      )
-                    }
-                    className="rounded-xl border border-stone-200"
-                    data-testid="booking-calendar"
-                  />
-                </div>
+                {/* Duration Type Selector */}
+                {(hasHourly || hasWeekly) && (
+                  <Tabs value={durationType} onValueChange={setDurationType} className="mb-6">
+                    <TabsList className="grid w-full grid-cols-3 h-10">
+                      {hasHourly && (
+                        <TabsTrigger value="hourly" className="text-sm" data-testid="hourly-tab">
+                          <Clock className="h-3.5 w-3.5 mr-1.5" />
+                          Hourly
+                        </TabsTrigger>
+                      )}
+                      {hasDaily && (
+                        <TabsTrigger value="daily" className="text-sm" data-testid="daily-tab">
+                          <CalendarIcon className="h-3.5 w-3.5 mr-1.5" />
+                          Daily
+                        </TabsTrigger>
+                      )}
+                      {hasWeekly && (
+                        <TabsTrigger value="weekly" className="text-sm" data-testid="weekly-tab">
+                          <CalendarRange className="h-3.5 w-3.5 mr-1.5" />
+                          Weekly
+                        </TabsTrigger>
+                      )}
+                    </TabsList>
+                  </Tabs>
+                )}
+
+                {/* Hourly Booking */}
+                {durationType === 'hourly' && hasHourly && (
+                  <div className="mb-6 space-y-4">
+                    <div>
+                      <label className="text-sm font-medium text-stone-700 mb-2 block">
+                        Select date
+                      </label>
+                      <Calendar
+                        mode="single"
+                        selected={dateRange.from}
+                        onSelect={(date) => setDateRange({ from: date, to: date })}
+                        disabled={(date) =>
+                          date < new Date() ||
+                          bookedDates.some(
+                            (d) => d.toDateString() === date.toDateString()
+                          )
+                        }
+                        className="rounded-xl border border-stone-200"
+                        data-testid="booking-calendar-hourly"
+                      />
+                    </div>
+                    <div>
+                      <label className="text-sm font-medium text-stone-700 mb-2 flex items-center gap-2">
+                        <Clock className="h-4 w-4" />
+                        Number of hours
+                      </label>
+                      <div className="flex items-center gap-3">
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="icon"
+                          onClick={() => setHours(Math.max(listing.min_rental_hours || 1, hours - 1))}
+                          className="h-10 w-10 rounded-full"
+                        >
+                          -
+                        </Button>
+                        <Input
+                          type="number"
+                          value={hours}
+                          onChange={(e) => setHours(Math.max(listing.min_rental_hours || 1, parseInt(e.target.value) || 1))}
+                          className="w-20 h-10 text-center rounded-lg"
+                          min={listing.min_rental_hours || 1}
+                          data-testid="hours-input"
+                        />
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="icon"
+                          onClick={() => setHours(hours + 1)}
+                          className="h-10 w-10 rounded-full"
+                        >
+                          +
+                        </Button>
+                      </div>
+                      {listing.min_rental_hours > 1 && (
+                        <p className="text-xs text-stone-500 mt-1">
+                          Minimum {listing.min_rental_hours} hours
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                )}
+
+                {/* Daily/Weekly Calendar */}
+                {(durationType === 'daily' || durationType === 'weekly') && (
+                  <div className="mb-6">
+                    <label className="text-sm font-medium text-stone-700 mb-2 flex items-center gap-2">
+                      <CalendarIcon className="h-4 w-4" />
+                      Select dates
+                    </label>
+                    <Calendar
+                      mode="range"
+                      selected={dateRange}
+                      onSelect={setDateRange}
+                      disabled={(date) =>
+                        date < new Date() ||
+                        bookedDates.some(
+                          (d) => d.toDateString() === date.toDateString()
+                        )
+                      }
+                      className="rounded-xl border border-stone-200"
+                      data-testid="booking-calendar"
+                    />
+                  </div>
+                )}
 
                 {/* Price Breakdown */}
-                {days > 0 && (
+                {totalPrice > 0 && (
                   <div className="space-y-2 mb-6 pb-6 border-b border-stone-100">
                     <div className="flex justify-between text-stone-600">
-                      <span>
-                        {formatPrice(listing.price_per_day)} × {days} days
-                      </span>
+                      <span>{priceLabel}</span>
                       <span>{formatPrice(totalPrice)}</span>
                     </div>
                     <div className="flex justify-between text-stone-600">
