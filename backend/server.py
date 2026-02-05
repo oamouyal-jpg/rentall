@@ -95,6 +95,15 @@ class ListingBase(BaseModel):
     min_rental_hours: Optional[int] = 1
     min_rental_days: int = 1
     max_rental_days: int = 30
+    # Surge pricing
+    surge_enabled: bool = False
+    surge_percentage: Optional[float] = 20.0  # Default 20% surge
+    surge_weekends: bool = True  # Apply surge on weekends
+    surge_dates: List[str] = []  # Custom surge dates (YYYY-MM-DD)
+    # Long-term discounts
+    discount_weekly: Optional[float] = 0.0  # % discount for 7+ days
+    discount_monthly: Optional[float] = 0.0  # % discount for 30+ days
+    discount_quarterly: Optional[float] = 0.0  # % discount for 90+ days
     
 class ListingCreate(ListingBase):
     pass
