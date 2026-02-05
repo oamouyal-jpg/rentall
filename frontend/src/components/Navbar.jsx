@@ -123,25 +123,25 @@ export default function Navbar() {
                     <DropdownMenuItem asChild>
                       <Link to="/dashboard" className="cursor-pointer" data-testid="dashboard-link">
                         <LayoutDashboard className="mr-2 h-4 w-4" />
-                        Dashboard
+                        {t('common.dashboard')}
                       </Link>
                     </DropdownMenuItem>
                     <DropdownMenuItem asChild>
                       <Link to="/messages" className="cursor-pointer" data-testid="messages-link">
                         <MessageSquare className="mr-2 h-4 w-4" />
-                        Messages
+                        {t('common.messages')}
                       </Link>
                     </DropdownMenuItem>
                     <DropdownMenuItem asChild>
                       <Link to="/settings" className="cursor-pointer" data-testid="settings-link">
                         <User className="mr-2 h-4 w-4" />
-                        Settings
+                        {t('common.settings')}
                       </Link>
                     </DropdownMenuItem>
                     <DropdownMenuItem asChild className="sm:hidden">
                       <Link to="/create-listing" className="cursor-pointer">
                         <Plus className="mr-2 h-4 w-4" />
-                        List an item
+                        {t('nav.listItem')}
                       </Link>
                     </DropdownMenuItem>
                     <DropdownMenuSeparator />
@@ -151,7 +151,7 @@ export default function Navbar() {
                       data-testid="logout-btn"
                     >
                       <LogOut className="mr-2 h-4 w-4" />
-                      Log out
+                      {t('common.logout')}
                     </DropdownMenuItem>
                   </DropdownMenuContent>
                 </DropdownMenu>
