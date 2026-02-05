@@ -121,11 +121,14 @@ Build an app similar to Airbnb but for renting anything - from music instruments
 - Image uploads
 - Safety/Trust pages
 - Map view for location search
+- Phone verification (Twilio)
+- Stripe Connect for auto-payouts
+- **PWA Support (installable mobile app)**
 
 ### P1 (High Priority) - Next
-- [ ] Phone verification (Twilio)
 - [ ] Email notifications (SendGrid)
-- [ ] Stripe Connect for real auto-payouts
+- [ ] Improve image storage (migrate from base64 to S3/Cloudinary)
+- [ ] Refactor backend into modules (split server.py)
 
 ### P2 (Medium Priority)
 - [ ] Advanced search filters (availability dates)
