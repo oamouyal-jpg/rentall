@@ -802,6 +802,48 @@ async def get_listing_reviews(listing_id: str):
 
 # ============== MESSAGES ROUTES ==============
 
+import re
+
+def filter_contact_info(text: str) -> tuple[str, bool]:
+    """Filter out phone numbers, emails, and social media handles. Returns (filtered_text, was_filtered)"""
+    original = text
+    
+    # Phone numbers (various formats)
+    phone_patterns = [
+        r'\b\d{3}[-.\s]?\d{3}[-.\s]?\d{4}\b',  # 123-456-7890
+        r'\b\(\d{3}\)\s*\d{3}[-.\s]?\d{4}\b',   # (123) 456-7890
+        r'\b\+\d{1,3}[-.\s]?\d{3,4}[-.\s]?\d{3,4}[-.\s]?\d{3,4}\b',  # +1 123 456 7890
+        r'\b\d{10,11}\b',  # 1234567890
+    ]
+    
+    # Email addresses
+    email_pattern = r'\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b'
+    
+    # Social media handles and keywords
+    social_patterns = [
+        r'@[A-Za-z0-9_]{3,}',  # @username
+        r'\b(whatsapp|telegram|signal|venmo|cashapp|paypal|zelle)\b',
+        r'\b(instagram|facebook|fb|insta|snap|snapchat|tiktok)\b',
+        r'\b(call|text|dm)\s*(me|us)\b',
+    ]
+    
+    # URLs
+    url_pattern = r'https?://[^\s]+'
+    
+    filtered = text
+    
+    for pattern in phone_patterns:
+        filtered = re.sub(pattern, '[phone hidden]', filtered, flags=re.IGNORECASE)
+    
+    filtered = re.sub(email_pattern, '[email hidden]', filtered, flags=re.IGNORECASE)
+    filtered = re.sub(url_pattern, '[link hidden]', filtered, flags=re.IGNORECASE)
+    
+    for pattern in social_patterns:
+        filtered = re.sub(pattern, '[removed]', filtered, flags=re.IGNORECASE)
+    
+    was_filtered = filtered != original
+    return filtered, was_filtered
+
 @api_router.post("/messages", response_model=MessageResponse)
 async def send_message(
     message_data: MessageCreate,
@@ -811,6 +853,25 @@ async def send_message(
     if not recipient:
         raise HTTPException(status_code=404, detail="Recipient not found")
     
+    # Check if there's a paid booking between these users for this listing
+    has_paid_booking = False
+    if message_data.listing_id:
+        paid_booking = await db.bookings.find_one({
+            "listing_id": message_data.listing_id,
+            "status": "paid",
+            "$or": [
+                {"renter_id": current_user["id"], "owner_id": message_data.recipient_id},
+                {"renter_id": message_data.recipient_id, "owner_id": current_user["id"]}
+            ]
+        })
+        has_paid_booking = paid_booking is not None
+    
+    # Filter contact info if no paid booking
+    content = message_data.content
+    was_filtered = False
+    if not has_paid_booking:
+        content, was_filtered = filter_contact_info(content)
+    
     message_id = str(uuid.uuid4())
     message_doc = {
         "id": message_id,
@@ -818,9 +879,10 @@ async def send_message(
         "sender_name": current_user["name"],
         "sender_avatar": current_user.get("avatar_url"),
         "recipient_id": message_data.recipient_id,
-        "content": message_data.content,
+        "content": content,
         "listing_id": message_data.listing_id,
         "is_read": False,
+        "was_filtered": was_filtered,
         "created_at": datetime.now(timezone.utc).isoformat()
     }
     
