@@ -1,0 +1,214 @@
+{
+  "common": {
+    "search": "Rechercher",
+    "login": "Se connecter",
+    "signup": "S'inscrire",
+    "logout": "Se déconnecter",
+    "home": "Accueil",
+    "messages": "Messages",
+    "dashboard": "Tableau de bord",
+    "settings": "Paramètres",
+    "loading": "Chargement...",
+    "save": "Enregistrer",
+    "cancel": "Annuler",
+    "submit": "Soumettre",
+    "back": "Retour",
+    "next": "Suivant",
+    "or": "ou",
+    "and": "et"
+  },
+  "nav": {
+    "searchPlaceholder": "Rechercher n'importe quoi...",
+    "listItem": "Publier une annonce"
+  },
+  "home": {
+    "hero": {
+      "title": "Louez n'importe quoi,",
+      "titleLine2": "n'importe où",
+      "subtitle": "Voitures, motos, engins lourds, outils, artisans, équipement de fête — si ça existe, vous pouvez le louer. Économisez des milliers, accédez à tout, à tout moment.",
+      "searchPlaceholder": "Que recherchez-vous ?"
+    },
+    "features": {
+      "securePayments": "Paiements Sécurisés",
+      "securePaymentsDesc": "Toutes les transactions sont protégées via notre plateforme.",
+      "easyBooking": "Réservation Facile",
+      "easyBookingDesc": "Réservez des articles instantanément ou contactez directement les propriétaires.",
+      "greatValue": "Excellent Rapport Qualité-Prix",
+      "greatValueDesc": "Économisez de l'argent en louant plutôt qu'en achetant."
+    },
+    "categories": "Catégories Populaires",
+    "featuredListings": "Annonces en Vedette"
+  },
+  "auth": {
+    "login": {
+      "title": "Bon retour",
+      "subtitle": "Connectez-vous à votre compte RentAll",
+      "email": "E-mail",
+      "password": "Mot de passe",
+      "button": "Se connecter",
+      "noAccount": "Pas de compte ?",
+      "signupLink": "S'inscrire"
+    },
+    "register": {
+      "title": "Créer un compte",
+      "subtitle": "Rejoignez RentAll et commencez à louer aujourd'hui",
+      "name": "Nom complet",
+      "email": "E-mail",
+      "password": "Mot de passe",
+      "passwordHint": "Doit contenir au moins 6 caractères",
+      "button": "Créer un compte",
+      "hasAccount": "Déjà un compte ?",
+      "loginLink": "Se connecter"
+    }
+  },
+  "listing": {
+    "create": {
+      "title": "Publier une annonce",
+      "subtitle": "Partagez vos affaires et commencez à gagner. Vous gardez 95% de chaque location.",
+      "photos": "Photos",
+      "photosHint": "Ajoutez jusqu'à 5 photos. La première photo sera l'image de couverture.",
+      "addPhoto": "Ajouter une photo",
+      "itemTitle": "Titre",
+      "titlePlaceholder": "Que louez-vous ?",
+      "category": "Catégorie",
+      "categoryPlaceholder": "Sélectionnez une catégorie",
+      "description": "Description",
+      "descriptionPlaceholder": "Décrivez votre article, son état et toute exigence...",
+      "location": "Emplacement",
+      "locationPlaceholder": "Ville, État",
+      "damageDeposit": "Caution (optionnel)",
+      "createButton": "Créer l'annonce"
+    },
+    "pricing": {
+      "title": "Options de Tarification",
+      "subtitle": "Définissez vos tarifs de location. Activez plusieurs options pour plus de flexibilité.",
+      "hourlyRate": "Tarif horaire",
+      "dailyRate": "Tarif journalier",
+      "weeklyRate": "Tarif hebdomadaire",
+      "pricePerHour": "Prix par heure",
+      "pricePerDay": "Prix par jour",
+      "pricePerWeek": "Prix par semaine",
+      "minHours": "Heures minimum",
+      "minDays": "Jours minimum",
+      "saveMore": "Économisez plus"
+    },
+    "surge": {
+      "title": "Tarification de pointe",
+      "earnMore": "Gagnez plus",
+      "subtitle": "Facturez des tarifs plus élevés pendant les périodes chargées comme les week-ends.",
+      "percentage": "Pourcentage de majoration",
+      "weekends": "Appliquer la majoration le week-end (Sam & Dim)"
+    },
+    "discounts": {
+      "title": "Remises Longue Durée",
+      "subtitle": "Attirez plus de réservations en offrant des remises pour les locations plus longues.",
+      "weekly": "7+ jours",
+      "monthly": "30+ jours",
+      "quarterly": "90+ jours"
+    },
+    "whatNext": {
+      "title": "Que se passe-t-il ensuite ?",
+      "live": "Votre annonce sera en ligne immédiatement",
+      "message": "Les locataires peuvent vous envoyer un message ou réserver directement",
+      "earnings": "Vous recevrez 95% de chaque réservation (nous prenons 5%)",
+      "payouts": "Les paiements sont traités après la fin de la location"
+    },
+    "detail": {
+      "aboutItem": "À propos de cet article",
+      "location": "Emplacement",
+      "reviews": "Avis",
+      "noReviews": "Pas encore d'avis",
+      "messageOwner": "Message",
+      "manageListing": "Gérer l'annonce"
+    }
+  },
+  "booking": {
+    "selectDates": "Sélectionner les dates",
+    "selectDate": "Sélectionner une date",
+    "hours": "Nombre d'heures",
+    "serviceFee": "Frais de service (5%)",
+    "total": "Total",
+    "bookNow": "Réserver maintenant",
+    "selectDatesToBook": "Sélectionnez des dates pour réserver",
+    "selectDateAndHours": "Sélectionnez date et heures",
+    "peakPricing": "Tarif de pointe",
+    "discount": "de réduction",
+    "securePayment": "Paiement sécurisé via Stripe"
+  },
+  "categories": {
+    "cars": "Voitures",
+    "motorcycles": "Motos",
+    "bikes": "Vélos",
+    "scooters": "Scooters",
+    "boats": "Bateaux",
+    "rvs": "Camping-cars",
+    "heavyMachinery": "Engins Lourds",
+    "tractors": "Tracteurs",
+    "forklifts": "Chariots Élévateurs",
+    "trailers": "Remorques",
+    "tradies": "Artisans",
+    "cleaners": "Nettoyeurs",
+    "gardeners": "Jardiniers",
+    "movers": "Déménageurs",
+    "tools": "Outils",
+    "powerTools": "Outils Électriques",
+    "ladders": "Échelles",
+    "partyEvents": "Fêtes et Événements",
+    "speakers": "Enceintes et Audio",
+    "lighting": "Éclairage",
+    "tents": "Tentes et Chapiteaux",
+    "tables": "Tables et Chaises",
+    "sports": "Équipement Sportif",
+    "camping": "Camping et Randonnée",
+    "waterSports": "Sports Nautiques",
+    "winterSports": "Sports d'Hiver",
+    "tech": "Technologie",
+    "cameras": "Appareils Photo",
+    "drones": "Drones",
+    "gaming": "Jeux Vidéo",
+    "fashion": "Mode",
+    "musical": "Instruments de Musique",
+    "baby": "Bébés et Enfants"
+  },
+  "footer": {
+    "about": "À propos",
+    "howItWorks": "Comment ça marche",
+    "safety": "Sécurité",
+    "support": "Support",
+    "legal": "Mentions légales",
+    "terms": "Conditions d'utilisation",
+    "privacy": "Politique de confidentialité",
+    "copyright": "© 2026 RentAll. Tous droits réservés."
+  },
+  "messages": {
+    "title": "Messages",
+    "noConversations": "Pas encore de conversations",
+    "startConversation": "Commencez une conversation en envoyant un message au propriétaire",
+    "typeMessage": "Tapez un message...",
+    "send": "Envoyer"
+  },
+  "dashboard": {
+    "title": "Tableau de bord",
+    "myListings": "Mes Annonces",
+    "myRentals": "Mes Locations",
+    "requests": "Demandes",
+    "noListings": "Pas encore d'annonces",
+    "createFirst": "Créez votre première annonce",
+    "noRentals": "Pas encore de locations",
+    "browseItems": "Parcourir les articles à louer",
+    "noRequests": "Aucune demande de réservation"
+  },
+  "settings": {
+    "title": "Paramètres",
+    "profile": "Profil",
+    "verification": "Vérification",
+    "payments": "Paiements",
+    "language": "Langue",
+    "phoneVerification": "Vérification du Téléphone",
+    "verifyPhone": "Vérifiez votre téléphone",
+    "phoneVerified": "Téléphone vérifié",
+    "stripeConnect": "Stripe Connect",
+    "setupPayouts": "Configurer les paiements",
+    "payoutsEnabled": "Paiements activés"
+  }
+}
