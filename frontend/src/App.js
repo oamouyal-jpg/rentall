@@ -51,6 +51,7 @@ function App() {
             </Routes>
           </main>
           <Footer />
+          <InstallPrompt />
           <Toaster 
             position="top-right" 
             toastOptions={{
