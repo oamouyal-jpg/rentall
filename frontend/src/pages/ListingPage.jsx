@@ -183,11 +183,37 @@ export default function ListingPage() {
 
   if (!listing) return null;
 
+  // Calculate available pricing options
+  const hasHourly = listing.price_per_hour && listing.price_per_hour > 0;
+  const hasDaily = listing.price_per_day && listing.price_per_day > 0;
+  const hasWeekly = listing.price_per_week && listing.price_per_week > 0;
+  
+  // Set default duration type based on available pricing
+  const defaultDurationType = hasHourly ? 'hourly' : hasDaily ? 'daily' : 'weekly';
+
   const days =
     dateRange.from && dateRange.to
       ? differenceInDays(dateRange.to, dateRange.from)
       : 0;
-  const totalPrice = days > 0 ? listing.price_per_day * days : 0;
+  
+  // Calculate price based on duration type
+  let totalPrice = 0;
+  let priceLabel = '';
+  
+  if (durationType === 'hourly' && hasHourly) {
+    totalPrice = listing.price_per_hour * hours;
+    priceLabel = `${formatPrice(listing.price_per_hour)} × ${hours} hours`;
+  } else if (durationType === 'weekly' && hasWeekly) {
+    const weeks = Math.floor(days / 7) || 1;
+    const remainingDays = days % 7;
+    const dailyRate = listing.price_per_day || (listing.price_per_week / 7);
+    totalPrice = (listing.price_per_week * weeks) + (dailyRate * remainingDays);
+    priceLabel = weeks > 0 ? `${formatPrice(listing.price_per_week)} × ${weeks} week${weeks > 1 ? 's' : ''}${remainingDays > 0 ? ` + ${remainingDays} days` : ''}` : '';
+  } else if (hasDaily) {
+    totalPrice = days > 0 ? listing.price_per_day * days : 0;
+    priceLabel = days > 0 ? `${formatPrice(listing.price_per_day)} × ${days} days` : '';
+  }
+  
   const platformFee = totalPrice * 0.05;
   const isOwner = user?.id === listing.owner_id;
 
