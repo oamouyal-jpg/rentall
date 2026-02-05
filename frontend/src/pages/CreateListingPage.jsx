@@ -124,9 +124,13 @@ export default function CreateListingPage() {
       return;
     }
 
-    const price = parseFloat(pricePerDay);
-    if (isNaN(price) || price <= 0) {
-      toast.error('Please enter a valid price');
+    // Validate at least one pricing option is enabled and has a value
+    const hasHourlyPrice = enableHourly && pricePerHour && parseFloat(pricePerHour) > 0;
+    const hasDailyPrice = enableDaily && pricePerDay && parseFloat(pricePerDay) > 0;
+    const hasWeeklyPrice = enableWeekly && pricePerWeek && parseFloat(pricePerWeek) > 0;
+
+    if (!hasHourlyPrice && !hasDailyPrice && !hasWeeklyPrice) {
+      toast.error('Please set at least one pricing option');
       return;
     }
 
@@ -142,7 +146,11 @@ export default function CreateListingPage() {
         title,
         description,
         category,
-        price_per_day: price,
+        price_per_hour: hasHourlyPrice ? parseFloat(pricePerHour) : null,
+        price_per_day: hasDailyPrice ? parseFloat(pricePerDay) : null,
+        price_per_week: hasWeeklyPrice ? parseFloat(pricePerWeek) : null,
+        min_rental_hours: enableHourly ? parseInt(minHours) || 1 : 1,
+        min_rental_days: enableDaily ? parseInt(minDays) || 1 : 1,
         location,
         latitude,
         longitude,
