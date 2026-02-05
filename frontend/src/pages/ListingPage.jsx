@@ -586,14 +586,18 @@ export default function ListingPage() {
                 ) : (
                   <Button
                     onClick={handleBooking}
-                    disabled={days === 0 || booking}
+                    disabled={totalPrice === 0 || booking}
                     className="w-full h-12 rounded-full bg-[#E05D44] hover:bg-[#C54E36] btn-press"
                     data-testid="book-now-btn"
                   >
                     {booking ? (
                       <Loader2 className="h-4 w-4 animate-spin mr-2" />
                     ) : null}
-                    {days === 0 ? 'Select dates to book' : 'Book now'}
+                    {totalPrice === 0 
+                      ? durationType === 'hourly' 
+                        ? 'Select date and hours' 
+                        : 'Select dates to book'
+                      : 'Book now'}
                   </Button>
                 )}
 
