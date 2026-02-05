@@ -96,7 +96,7 @@ Build an app similar to Airbnb but for renting anything - from music instruments
 - **PWA Meta Tags**: Apple touch icons, theme-color, mobile-web-app-capable
 - **App Icons**: Custom 192x192 and 512x512 PNG icons
 
-### Phase 5 - Flexible Pricing ✅ NEW (Feb 5, 2026)
+### Phase 5 - Flexible Pricing (Feb 5, 2026)
 - **Hourly Rates**: Owners can set price per hour with minimum hours
 - **Daily Rates**: Price per day with minimum days (existing, enhanced)
 - **Weekly Rates**: Discounted weekly pricing with "Save more" badge
@@ -105,6 +105,16 @@ Build an app similar to Airbnb but for renting anything - from music instruments
 - **Price Calculation**: Backend calculates prices based on duration type
 - **Hours Selector**: +/- buttons to select hours for hourly bookings
 - **Pro-rated Weekly**: Weekly bookings with extra days pro-rated at daily rate
+
+### Phase 6 - Surge Pricing & Long-term Discounts ✅ NEW (Feb 5, 2026)
+- **Peak Pricing**: Owners can enable surge pricing for weekends
+- **Surge Percentage**: Configurable surge % (default 20%)
+- **Weekend Detection**: Automatically applies surge for Sat/Sun bookings
+- **7+ Day Discount**: Owners set discount % for weekly rentals
+- **30+ Day Discount**: Owners set discount % for monthly rentals
+- **90+ Day Discount**: Owners set discount % for quarterly rentals
+- **Price Breakdown**: Shows surge (amber) and discounts (teal) separately
+- **Smart Calculation**: Backend handles surge + discount combinations
 
 ## Pages
 - `/` - Homepage with hero, categories, featured listings
