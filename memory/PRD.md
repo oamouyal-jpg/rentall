@@ -60,7 +60,7 @@ Build an app similar to Airbnb but for renting anything - from music instruments
 - [x] Payout tracking system
 - [x] Safety & Trust pages
 
-## What's Been Implemented (Feb 4, 2026)
+## What's Been Implemented (Feb 5, 2026)
 
 ### Phase 1 - MVP
 - Full CRUD for listings, bookings, reviews, messages
@@ -79,6 +79,21 @@ Build an app similar to Airbnb but for renting anything - from music instruments
 - **Enhanced User Model**: phone_verified, id_verified, total_earnings, pending_payout
 - **Damage Deposit**: Optional deposit field on listings
 - **Global Footer**: Navigation to all info/legal pages
+
+### Phase 3 - Maps, Verification & Payouts
+- **Mapbox Integration**: Interactive map view on search page, static maps on listing details
+- **Twilio Phone Verification**: SMS-based phone number verification
+- **Stripe Connect**: Automated 95/5 split payouts to item owners
+- **Anti-bypass Messaging**: Filter contact info in messages before booking confirmation
+
+### Phase 4 - PWA (Progressive Web App) ✅ NEW
+- **manifest.json**: App name, icons, theme colors, shortcuts
+- **Service Worker**: Offline caching, background sync capability
+- **Offline Page**: Custom offline fallback with retry mechanism
+- **Mobile Bottom Navbar**: Fixed bottom navigation for mobile users (Home, Search, List, Messages, Profile)
+- **Install Prompt**: Smart install banner for iOS and Android
+- **PWA Meta Tags**: Apple touch icons, theme-color, mobile-web-app-capable
+- **App Icons**: Custom 192x192 and 512x512 PNG icons
 
 ## Pages
 - `/` - Homepage with hero, categories, featured listings
