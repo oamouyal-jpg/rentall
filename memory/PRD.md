@@ -87,7 +87,7 @@ Build an app similar to Airbnb but for renting anything - from music instruments
 - **Stripe Connect**: Automated 95/5 split payouts to item owners
 - **Anti-bypass Messaging**: Filter contact info in messages before booking confirmation
 
-### Phase 4 - PWA (Progressive Web App) ✅ NEW
+### Phase 4 - PWA (Progressive Web App)
 - **manifest.json**: App name, icons, theme colors, shortcuts
 - **Service Worker**: Offline caching, background sync capability
 - **Offline Page**: Custom offline fallback with retry mechanism
@@ -95,6 +95,16 @@ Build an app similar to Airbnb but for renting anything - from music instruments
 - **Install Prompt**: Smart install banner for iOS and Android
 - **PWA Meta Tags**: Apple touch icons, theme-color, mobile-web-app-capable
 - **App Icons**: Custom 192x192 and 512x512 PNG icons
+
+### Phase 5 - Flexible Pricing ✅ NEW (Feb 5, 2026)
+- **Hourly Rates**: Owners can set price per hour with minimum hours
+- **Daily Rates**: Price per day with minimum days (existing, enhanced)
+- **Weekly Rates**: Discounted weekly pricing with "Save more" badge
+- **Create Listing UI**: Toggle switches for each pricing option
+- **Booking UI**: Tabs to select Hourly/Daily/Weekly on listing detail page
+- **Price Calculation**: Backend calculates prices based on duration type
+- **Hours Selector**: +/- buttons to select hours for hourly bookings
+- **Pro-rated Weekly**: Weekly bookings with extra days pro-rated at daily rate
 
 ## Pages
 - `/` - Homepage with hero, categories, featured listings
