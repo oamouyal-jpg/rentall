@@ -137,14 +137,13 @@ Build an app similar to Airbnb but for renting anything - from music instruments
 - [ ] Booking modification/cancellation
 
 ### P3 (Nice to Have)
-- [ ] Mobile app (React Native)
-- [ ] Push notifications
+- [ ] Push notifications (using service worker)
 - [ ] Price recommendations AI
 - [ ] Social sharing
 
 ## Next Tasks
-1. Add phone verification (Twilio)
-2. Integrate map view (Mapbox/Google Maps)
-3. Add email notifications (SendGrid)
-4. Implement Stripe Connect for real payouts
-5. Add ID verification flow
+1. Add email notifications (SendGrid)
+2. Improve image storage (S3 or Cloudinary)
+3. Refactor backend code into modules
+4. Add ID verification flow
+5. Implement push notifications
