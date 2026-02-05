@@ -37,6 +37,8 @@ import {
   Send,
   Clock,
   CalendarRange,
+  TrendingUp,
+  Tag,
 } from 'lucide-react';
 
 export default function ListingPage() {
