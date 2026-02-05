@@ -84,12 +84,15 @@ class ListingBase(BaseModel):
     title: str
     description: str
     category: str
-    price_per_day: float
+    price_per_hour: Optional[float] = None
+    price_per_day: Optional[float] = None
+    price_per_week: Optional[float] = None
     location: str
     latitude: float
     longitude: float
     images: List[str] = []
     damage_deposit: Optional[float] = 0.0
+    min_rental_hours: Optional[int] = 1
     min_rental_days: int = 1
     max_rental_days: int = 30
     
