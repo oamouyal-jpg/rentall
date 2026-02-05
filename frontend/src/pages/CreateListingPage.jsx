@@ -459,6 +459,125 @@ export default function CreateListingPage() {
             </div>
           </div>
 
+          {/* Surge Pricing */}
+          <div className="space-y-4">
+            <div className="bg-amber-50 rounded-xl p-4 space-y-3">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <TrendingUp className="h-4 w-4 text-amber-600" />
+                  <Label htmlFor="surge-toggle" className="font-medium">Peak pricing</Label>
+                  <span className="text-xs text-amber-600 bg-amber-100 px-2 py-0.5 rounded-full">Earn more</span>
+                </div>
+                <Switch
+                  id="surge-toggle"
+                  checked={surgeEnabled}
+                  onCheckedChange={setSurgeEnabled}
+                  data-testid="surge-toggle"
+                />
+              </div>
+              <p className="text-xs text-stone-500">
+                Charge higher rates during busy periods like weekends.
+              </p>
+              {surgeEnabled && (
+                <div className="pt-2 space-y-3">
+                  <div className="flex items-center gap-3">
+                    <div className="flex-1">
+                      <Label className="text-xs text-stone-500">Surge percentage</Label>
+                      <div className="relative mt-1">
+                        <Percent className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-stone-400" />
+                        <Input
+                          type="number"
+                          min="1"
+                          max="100"
+                          placeholder="20"
+                          value={surgePercentage}
+                          onChange={(e) => setSurgePercentage(e.target.value)}
+                          className="h-10 pl-9 rounded-lg"
+                          data-testid="surge-percentage-input"
+                        />
+                      </div>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Checkbox
+                      id="surge-weekends"
+                      checked={surgeWeekends}
+                      onCheckedChange={setSurgeWeekends}
+                      data-testid="surge-weekends-checkbox"
+                    />
+                    <Label htmlFor="surge-weekends" className="text-sm text-stone-600 cursor-pointer">
+                      Apply surge on weekends (Sat & Sun)
+                    </Label>
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* Long-term Discounts */}
+          <div className="space-y-4">
+            <div>
+              <Label className="text-base font-medium flex items-center gap-2">
+                <Tag className="h-4 w-4" />
+                Long-term Discounts
+              </Label>
+              <p className="text-sm text-stone-500 mt-1">
+                Attract more bookings by offering discounts for longer rentals.
+              </p>
+            </div>
+            
+            <div className="grid grid-cols-3 gap-3">
+              <div className="bg-stone-50 rounded-xl p-3">
+                <Label className="text-xs text-stone-500">7+ days</Label>
+                <div className="relative mt-1">
+                  <Percent className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-stone-400" />
+                  <Input
+                    type="number"
+                    min="0"
+                    max="50"
+                    placeholder="5"
+                    value={discountWeekly}
+                    onChange={(e) => setDiscountWeekly(e.target.value)}
+                    className="h-9 pl-8 text-sm rounded-lg"
+                    data-testid="discount-weekly-input"
+                  />
+                </div>
+              </div>
+              <div className="bg-stone-50 rounded-xl p-3">
+                <Label className="text-xs text-stone-500">30+ days</Label>
+                <div className="relative mt-1">
+                  <Percent className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-stone-400" />
+                  <Input
+                    type="number"
+                    min="0"
+                    max="50"
+                    placeholder="15"
+                    value={discountMonthly}
+                    onChange={(e) => setDiscountMonthly(e.target.value)}
+                    className="h-9 pl-8 text-sm rounded-lg"
+                    data-testid="discount-monthly-input"
+                  />
+                </div>
+              </div>
+              <div className="bg-stone-50 rounded-xl p-3">
+                <Label className="text-xs text-stone-500">90+ days</Label>
+                <div className="relative mt-1">
+                  <Percent className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-stone-400" />
+                  <Input
+                    type="number"
+                    min="0"
+                    max="50"
+                    placeholder="25"
+                    value={discountQuarterly}
+                    onChange={(e) => setDiscountQuarterly(e.target.value)}
+                    className="h-9 pl-8 text-sm rounded-lg"
+                    data-testid="discount-quarterly-input"
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+
           {/* Damage Deposit */}
           <div className="space-y-2">
             <Label htmlFor="deposit">Damage deposit (optional)</Label>
