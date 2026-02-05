@@ -24,6 +24,7 @@ import SettingsPage from "./pages/SettingsPage";
 import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
 import { InstallPrompt } from "./components/InstallPrompt";
+import { MobileNavbar } from "./components/MobileNavbar";
 
 function App() {
   return (
