@@ -83,7 +83,7 @@ export default function Navbar() {
                     data-testid="create-listing-btn"
                   >
                     <Plus className="h-4 w-4" />
-                    <span>List an item</span>
+                    <span>{t('nav.listItem')}</span>
                   </Button>
                 </Link>
 
