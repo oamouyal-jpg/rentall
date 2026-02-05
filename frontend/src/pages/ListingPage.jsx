@@ -55,6 +55,10 @@ export default function ListingPage() {
   const [messageOpen, setMessageOpen] = useState(false);
   const [message, setMessage] = useState('');
   const [sendingMessage, setSendingMessage] = useState(false);
+  
+  // Flexible pricing state
+  const [durationType, setDurationType] = useState('daily');
+  const [hours, setHours] = useState(1);
 
   useEffect(() => {
     const fetchData = async () => {
