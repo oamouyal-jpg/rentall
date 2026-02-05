@@ -113,9 +113,9 @@ export default function HomePage() {
                 <Shield className="h-6 w-6 text-[#E05D44]" />
               </div>
               <div>
-                <h3 className="font-semibold text-stone-900 mb-1 font-heading">Secure Payments</h3>
+                <h3 className="font-semibold text-stone-900 mb-1 font-heading">{t('home.features.securePayments')}</h3>
                 <p className="text-stone-600 text-sm leading-relaxed">
-                  All transactions are protected. Pay securely through our platform.
+                  {t('home.features.securePaymentsDesc')}
                 </p>
               </div>
             </div>
