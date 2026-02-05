@@ -8,6 +8,7 @@ Build an app similar to Airbnb but for renting anything - from music instruments
 - **Authentication**: JWT-based custom auth
 - **Communication**: In-app messaging
 - **Features**: All (location search, reviews, booking calendar, image uploads, safety pages)
+- **App Type**: Progressive Web App (PWA) - installable on mobile devices
 
 ## Architecture
 
@@ -15,8 +16,11 @@ Build an app similar to Airbnb but for renting anything - from music instruments
 - **Frontend**: React 19, Tailwind CSS, Shadcn UI components
 - **Backend**: FastAPI (Python)
 - **Database**: MongoDB
-- **Payments**: Stripe Checkout (emergentintegrations library)
+- **Payments**: Stripe Checkout + Stripe Connect (auto-payouts)
 - **Image Storage**: Base64 in MongoDB
+- **Maps**: Mapbox GL
+- **SMS**: Twilio (phone verification)
+- **App Type**: PWA (Progressive Web App)
 
 ### Key Endpoints
 | Endpoint | Method | Description |
