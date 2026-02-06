@@ -131,6 +131,15 @@ Build an app similar to Airbnb but for renting anything - from music instruments
 - **Categories Covered**: Cars, Cameras, Heavy Machinery, Tradies, Party Equipment, Bikes
 - **Locations**: Australian cities (Sydney, Melbourne, Brisbane, Perth, Adelaide, Hobart)
 
+### Phase 9 - Fraud Prevention / Payment Escrow ✅ NEW (Feb 6, 2026)
+- **Payment Escrow**: Money held until renter confirms receipt
+- **Confirm Receipt Button**: Renters click to release payment to owner
+- **Report Issue Button**: Renters can flag problems, payment stays held
+- **Auto-release Date**: Payment auto-releases 3 days after rental ends (owner protection)
+- **Dashboard Banner**: Shows "Payment Protection" info to renters
+- **Escrow Badges**: Visual indicators showing payment status (held/released)
+- **Dispute System**: Issues flagged for admin review
+
 ## Pages
 - `/` - Homepage with hero, categories, featured listings
 - `/search` - Search with filters and 33 category icons
