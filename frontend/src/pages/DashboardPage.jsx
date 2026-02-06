@@ -284,39 +284,102 @@ export default function DashboardPage() {
 
           {/* Rentals Tab */}
           <TabsContent value="rentals">
+            {/* Escrow Info Banner */}
+            <div className="bg-blue-50 border border-blue-200 rounded-xl p-4 mb-6 flex items-start gap-3">
+              <Shield className="h-5 w-5 text-blue-600 mt-0.5 shrink-0" />
+              <div>
+                <h4 className="font-semibold text-blue-900 text-sm">Payment Protection</h4>
+                <p className="text-blue-700 text-sm">
+                  Your payment is held securely until you confirm you've received the item. 
+                  Once confirmed, payment is released to the owner.
+                </p>
+              </div>
+            </div>
+
             {myBookings.length > 0 ? (
               <div className="space-y-4">
                 {myBookings.map((booking) => (
                   <div
                     key={booking.id}
-                    className="bg-white rounded-2xl border border-stone-100 p-4 flex flex-col sm:flex-row gap-4"
+                    className="bg-white rounded-2xl border border-stone-100 p-4"
                     data-testid={`my-booking-${booking.id}`}
                   >
-                    <div className="w-full sm:w-32 h-24 rounded-xl overflow-hidden bg-stone-100 shrink-0">
-                      <img
-                        src={booking.listing_image || 'https://images.unsplash.com/photo-1553062407-98eeb64c6a62?w=800'}
-                        alt={booking.listing_title}
-                        className="w-full h-full object-cover"
-                      />
+                    <div className="flex flex-col sm:flex-row gap-4">
+                      <div className="w-full sm:w-32 h-24 rounded-xl overflow-hidden bg-stone-100 shrink-0">
+                        <img
+                          src={booking.listing_image || 'https://images.unsplash.com/photo-1553062407-98eeb64c6a62?w=800'}
+                          alt={booking.listing_title}
+                          className="w-full h-full object-cover"
+                        />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-start justify-between gap-2 mb-2">
+                          <h3 className="font-semibold text-stone-900 font-heading truncate">
+                            {booking.listing_title}
+                          </h3>
+                          <div className="flex items-center gap-2 shrink-0">
+                            {getStatusBadge(booking.status)}
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-4 text-sm text-stone-500 mb-2">
+                          <span className="flex items-center gap-1">
+                            <Clock className="h-3.5 w-3.5" />
+                            {formatDate(booking.start_date)} - {formatDate(booking.end_date)}
+                          </span>
+                        </div>
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-3">
+                            <span className="flex items-center gap-1 text-stone-900 font-medium">
+                              <DollarSign className="h-4 w-4" />
+                              {formatPrice(booking.total_price)}
+                            </span>
+                            {booking.status === 'paid' && getEscrowBadge(booking.escrow_status, booking.receipt_confirmed)}
+                          </div>
+                        </div>
+                      </div>
                     </div>
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-start justify-between gap-2 mb-2">
-                        <h3 className="font-semibold text-stone-900 font-heading truncate">
-                          {booking.listing_title}
-                        </h3>
-                        {getStatusBadge(booking.status)}
+                    
+                    {/* Confirm Receipt Section */}
+                    {booking.status === 'paid' && !booking.receipt_confirmed && (
+                      <div className="mt-4 pt-4 border-t border-stone-100">
+                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                          <p className="text-sm text-stone-600">
+                            Did you receive this item? Confirm to release payment to owner.
+                          </p>
+                          <div className="flex gap-2">
+                            <Button
+                              onClick={() => handleReportIssue(booking.id)}
+                              variant="outline"
+                              size="sm"
+                              className="text-orange-600 border-orange-200 hover:bg-orange-50"
+                              data-testid={`report-issue-${booking.id}`}
+                            >
+                              <AlertTriangle className="h-4 w-4 mr-1" />
+                              Report Issue
+                            </Button>
+                            <Button
+                              onClick={() => handleConfirmReceipt(booking.id)}
+                              size="sm"
+                              className="bg-green-600 hover:bg-green-700"
+                              data-testid={`confirm-receipt-${booking.id}`}
+                            >
+                              <CheckCircle className="h-4 w-4 mr-1" />
+                              Confirm Receipt
+                            </Button>
+                          </div>
+                        </div>
                       </div>
-                      <div className="flex items-center gap-4 text-sm text-stone-500 mb-2">
-                        <span className="flex items-center gap-1">
-                          <Clock className="h-3.5 w-3.5" />
-                          {formatDate(booking.start_date)} - {formatDate(booking.end_date)}
-                        </span>
+                    )}
+                    
+                    {/* Completed message */}
+                    {booking.receipt_confirmed && (
+                      <div className="mt-4 pt-4 border-t border-stone-100">
+                        <p className="text-sm text-green-600 flex items-center gap-2">
+                          <CheckCircle className="h-4 w-4" />
+                          Receipt confirmed - payment released to owner
+                        </p>
                       </div>
-                      <div className="flex items-center gap-1 text-stone-900 font-medium">
-                        <DollarSign className="h-4 w-4" />
-                        {formatPrice(booking.total_price)}
-                      </div>
-                    </div>
+                    )}
                   </div>
                 ))}
               </div>
