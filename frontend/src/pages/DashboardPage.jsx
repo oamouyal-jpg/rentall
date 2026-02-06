@@ -18,6 +18,8 @@ import {
   CheckCircle,
   XCircle,
   DollarSign,
+  Shield,
+  AlertTriangle,
 } from 'lucide-react';
 
 export default function DashboardPage() {
