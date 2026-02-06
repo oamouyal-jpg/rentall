@@ -72,6 +72,34 @@ export default function DashboardPage() {
     }
   };
 
+  const handleConfirmReceipt = async (bookingId) => {
+    try {
+      await bookingsAPI.confirmReceipt(bookingId);
+      toast.success('Item received confirmed! Payment released to owner.');
+      // Refresh bookings
+      const res = await bookingsAPI.getMy();
+      setMyBookings(res.data);
+    } catch (error) {
+      console.error('Error confirming receipt:', error);
+      toast.error(error.response?.data?.detail || 'Failed to confirm receipt');
+    }
+  };
+
+  const handleReportIssue = async (bookingId) => {
+    const issue = prompt('Please describe the issue:');
+    if (!issue) return;
+    
+    try {
+      await bookingsAPI.reportIssue(bookingId, issue);
+      toast.success('Issue reported. Our team will review.');
+      const res = await bookingsAPI.getMy();
+      setMyBookings(res.data);
+    } catch (error) {
+      console.error('Error reporting issue:', error);
+      toast.error('Failed to report issue');
+    }
+  };
+
   const getStatusBadge = (status) => {
     const variants = {
       pending: 'bg-amber-100 text-amber-700',
