@@ -24,13 +24,17 @@ mongo_url = os.environ['MONGO_URL']
 client = AsyncIOMotorClient(mongo_url)
 db = client[os.environ['DB_NAME']]
 
-# JWT Config
-JWT_SECRET = os.environ.get('JWT_SECRET', 'rentall-super-secret-key-2024')
+# JWT Config - MUST be set in environment
+JWT_SECRET = os.environ.get('JWT_SECRET')
+if not JWT_SECRET:
+    raise ValueError("JWT_SECRET environment variable is required")
 JWT_ALGORITHM = "HS256"
 JWT_EXPIRATION_HOURS = 24
 
-# Stripe Config
-STRIPE_API_KEY = os.environ.get('STRIPE_API_KEY', 'sk_test_emergent')
+# Stripe Config - MUST be set in environment
+STRIPE_API_KEY = os.environ.get('STRIPE_API_KEY')
+if not STRIPE_API_KEY:
+    raise ValueError("STRIPE_API_KEY environment variable is required")
 PLATFORM_FEE_PERCENT = 5.0
 stripe.api_key = STRIPE_API_KEY
 
