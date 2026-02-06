@@ -1342,17 +1342,14 @@ async def stripe_webhook(request: Request):
                 
                 await db.bookings.update_one(
                     {"id": transaction["booking_id"]},
-                    {"$set": {"status": "paid"}}
+                    {"$set": {"status": "paid", "escrow_status": "held"}}
                 )
                 
-                # Credit owner's pending payout
+                # DON'T credit owner yet - money is held in escrow
+                # Owner gets paid when renter confirms receipt
                 booking = await db.bookings.find_one({"id": transaction["booking_id"]})
                 if booking:
-                    owner_amount = transaction.get("owner_amount", transaction["amount"] * 0.95)
-                    await db.users.update_one(
-                        {"id": booking["owner_id"]},
-                        {"$inc": {"pending_payout": owner_amount, "total_earnings": owner_amount}}
-                    )
+                    logging.info(f"Webhook: Payment received for booking {transaction['booking_id']} - funds held in escrow")
                     # Create payout record
                     await db.payouts.insert_one({
                         "id": str(uuid.uuid4()),
