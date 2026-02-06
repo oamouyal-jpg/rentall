@@ -309,44 +309,6 @@ export default function SettingsPage() {
             <Badge className="bg-amber-100 text-amber-700">Coming Soon</Badge>
           </div>
         )}
-                      onChange={(e) => setVerificationCode(e.target.value)}
-                      maxLength={6}
-                      className="flex-1 rounded-xl"
-                      data-testid="code-input"
-                    />
-                    <Button
-                      onClick={handleVerifyCode}
-                      disabled={verifying}
-                      className="rounded-xl bg-[#8DA399] hover:bg-[#768C82]"
-                      data-testid="verify-code-btn"
-                    >
-                      {verifying ? (
-                        <Loader2 className="h-4 w-4 animate-spin" />
-                      ) : (
-                        <>
-                          <CheckCircle className="h-4 w-4 mr-2" />
-                          Verify
-                        </>
-                      )}
-                    </Button>
-                  </div>
-                  <p className="text-sm text-stone-500 mt-2">
-                    Didn't receive the code?{' '}
-                    <button
-                      onClick={() => {
-                        setCodeSent(false);
-                        setVerificationCode('');
-                      }}
-                      className="text-[#E05D44] hover:underline"
-                    >
-                      Try again
-                    </button>
-                  </p>
-                </div>
-              )}
-            </div>
-          </div>
-        )}
 
         {/* Earnings Summary */}
         {payoutSummary && (
