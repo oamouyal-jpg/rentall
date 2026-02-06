@@ -159,6 +159,11 @@ class BookingResponse(BookingBase):
     # Discount info
     discount_applied: Optional[float] = 0
     discount_label: Optional[str] = None
+    # Escrow fields
+    escrow_status: Optional[str] = "held"  # held, released, refunded
+    receipt_confirmed: Optional[bool] = False
+    receipt_confirmed_at: Optional[str] = None
+    auto_release_date: Optional[str] = None
 
 class ReviewBase(BaseModel):
     listing_id: str
