@@ -851,6 +851,96 @@ async def update_booking_status(
     await db.bookings.update_one({"id": booking_id}, {"$set": {"status": status}})
     return {"message": f"Booking {status}"}
 
+@api_router.post("/bookings/{booking_id}/confirm-receipt")
+async def confirm_receipt(
+    booking_id: str,
+    current_user: dict = Depends(get_current_user)
+):
+    """Renter confirms they received the item - releases escrow to owner"""
+    booking = await db.bookings.find_one({"id": booking_id})
+    if not booking:
+        raise HTTPException(status_code=404, detail="Booking not found")
+    
+    # Only renter can confirm receipt
+    if booking["renter_id"] != current_user["id"]:
+        raise HTTPException(status_code=403, detail="Only the renter can confirm receipt")
+    
+    # Must be in paid status
+    if booking["status"] != "paid":
+        raise HTTPException(status_code=400, detail="Booking must be paid first")
+    
+    # Already confirmed
+    if booking.get("receipt_confirmed"):
+        raise HTTPException(status_code=400, detail="Receipt already confirmed")
+    
+    # Update booking
+    await db.bookings.update_one(
+        {"id": booking_id},
+        {
+            "$set": {
+                "receipt_confirmed": True,
+                "receipt_confirmed_at": datetime.now(timezone.utc).isoformat(),
+                "escrow_status": "released",
+                "status": "completed"
+            }
+        }
+    )
+    
+    # Calculate owner payout (total - platform fee)
+    owner_payout = booking["total_price"] - booking["platform_fee"]
+    
+    # Update owner's earnings
+    await db.users.update_one(
+        {"id": booking["owner_id"]},
+        {"$inc": {"total_earnings": owner_payout, "pending_payout": owner_payout}}
+    )
+    
+    # If owner has Stripe Connect, trigger payout
+    owner = await db.users.find_one({"id": booking["owner_id"]})
+    if owner and owner.get("stripe_account_id") and owner.get("stripe_onboarding_complete"):
+        try:
+            # Create transfer to connected account
+            transfer = stripe.Transfer.create(
+                amount=int(owner_payout * 100),  # Convert to cents
+                currency="usd",
+                destination=owner["stripe_account_id"],
+                description=f"Payout for booking {booking_id}"
+            )
+            logging.info(f"Stripe transfer created: {transfer.id}")
+        except Exception as e:
+            logging.error(f"Stripe transfer failed: {e}")
+    
+    return {"message": "Receipt confirmed, payment released to owner", "owner_payout": owner_payout}
+
+@api_router.post("/bookings/{booking_id}/report-issue")
+async def report_issue(
+    booking_id: str,
+    issue: str,
+    current_user: dict = Depends(get_current_user)
+):
+    """Renter reports an issue with the booking"""
+    booking = await db.bookings.find_one({"id": booking_id})
+    if not booking:
+        raise HTTPException(status_code=404, detail="Booking not found")
+    
+    if booking["renter_id"] != current_user["id"]:
+        raise HTTPException(status_code=403, detail="Only the renter can report issues")
+    
+    # Update booking with dispute
+    await db.bookings.update_one(
+        {"id": booking_id},
+        {
+            "$set": {
+                "status": "disputed",
+                "escrow_status": "held",
+                "dispute_reason": issue,
+                "dispute_date": datetime.now(timezone.utc).isoformat()
+            }
+        }
+    )
+    
+    return {"message": "Issue reported. Our team will review and contact both parties."}
+
 @api_router.get("/bookings/listing/{listing_id}/dates")
 async def get_booked_dates(listing_id: str):
     bookings = await db.bookings.find(
