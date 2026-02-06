@@ -108,12 +108,33 @@ export default function DashboardPage() {
       completed: 'bg-stone-100 text-stone-700',
       rejected: 'bg-red-100 text-red-700',
       cancelled: 'bg-red-100 text-red-700',
+      disputed: 'bg-orange-100 text-orange-700',
     };
     return (
       <Badge className={`${variants[status] || 'bg-stone-100 text-stone-700'} capitalize`}>
         {status}
       </Badge>
     );
+  };
+
+  const getEscrowBadge = (escrowStatus, receiptConfirmed) => {
+    if (receiptConfirmed) {
+      return (
+        <Badge className="bg-green-100 text-green-700 flex items-center gap-1">
+          <CheckCircle className="h-3 w-3" />
+          Payment Released
+        </Badge>
+      );
+    }
+    if (escrowStatus === 'held') {
+      return (
+        <Badge className="bg-blue-100 text-blue-700 flex items-center gap-1">
+          <Shield className="h-3 w-3" />
+          Payment Protected
+        </Badge>
+      );
+    }
+    return null;
   };
 
   if (authLoading || loading) {
