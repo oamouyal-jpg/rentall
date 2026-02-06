@@ -297,57 +297,18 @@ export default function SettingsPage() {
           </div>
         </div>
 
-        {/* Phone Verification Form */}
+        {/* Phone Verification Form - Coming Soon */}
         {!user.phone_verified && (
-          <div className="bg-white rounded-2xl border border-stone-200 p-6 mb-6">
+          <div className="bg-white rounded-2xl border border-stone-200 p-6 mb-6 opacity-60">
             <h2 className="text-lg font-semibold text-stone-900 mb-4 font-heading">
-              Verify Your Phone
+              Phone Verification
             </h2>
             <p className="text-stone-600 text-sm mb-4">
-              Verified users get a badge on their profile, building trust with renters and owners.
+              Phone verification coming soon! Verified users will get a badge on their profile, building trust with renters and owners.
             </p>
-
-            <div className="space-y-4">
-              <div>
-                <Label htmlFor="phone">Phone Number</Label>
-                <div className="flex gap-2 mt-1">
-                  <Input
-                    id="phone"
-                    type="tel"
-                    placeholder="+1 (555) 123-4567"
-                    value={phoneNumber}
-                    onChange={(e) => setPhoneNumber(e.target.value)}
-                    className="flex-1 rounded-xl"
-                    disabled={codeSent}
-                    data-testid="phone-input"
-                  />
-                  <Button
-                    onClick={handleSendCode}
-                    disabled={sendingCode || codeSent}
-                    className="rounded-xl bg-[#E05D44] hover:bg-[#C54E36]"
-                    data-testid="send-code-btn"
-                  >
-                    {sendingCode ? (
-                      <Loader2 className="h-4 w-4 animate-spin" />
-                    ) : (
-                      <>
-                        <Send className="h-4 w-4 mr-2" />
-                        Send Code
-                      </>
-                    )}
-                  </Button>
-                </div>
-              </div>
-
-              {codeSent && (
-                <div>
-                  <Label htmlFor="code">Verification Code</Label>
-                  <div className="flex gap-2 mt-1">
-                    <Input
-                      id="code"
-                      type="text"
-                      placeholder="123456"
-                      value={verificationCode}
+            <Badge className="bg-amber-100 text-amber-700">Coming Soon</Badge>
+          </div>
+        )}
                       onChange={(e) => setVerificationCode(e.target.value)}
                       maxLength={6}
                       className="flex-1 rounded-xl"
