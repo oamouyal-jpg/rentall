@@ -771,6 +771,9 @@ async def create_booking(
     
     platform_fee = round(total_price * (PLATFORM_FEE_PERCENT / 100), 2)
     
+    # Calculate auto-release date (3 days after rental end date)
+    auto_release_date = (end_date + timedelta(days=3)).isoformat()
+    
     booking_id = str(uuid.uuid4())
     booking_doc = {
         "id": booking_id,
@@ -791,6 +794,11 @@ async def create_booking(
         "total_price": total_price,
         "platform_fee": platform_fee,
         "status": "pending",
+        # Escrow fields
+        "escrow_status": "pending",  # pending -> held -> released/refunded
+        "receipt_confirmed": False,
+        "receipt_confirmed_at": None,
+        "auto_release_date": auto_release_date,
         "created_at": datetime.now(timezone.utc).isoformat()
     }
     
