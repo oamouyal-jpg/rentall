@@ -1296,16 +1296,12 @@ async def get_payment_status(
             
             await db.bookings.update_one(
                 {"id": transaction["booking_id"]},
-                {"$set": {"status": "paid"}}
+                {"$set": {"status": "paid", "escrow_status": "held"}}
             )
             
-            # If NOT auto-payout, credit owner's pending payout
-            if not transaction.get("auto_payout", False):
-                owner_amount = transaction.get("owner_amount", transaction["amount"] * 0.95)
-                await db.users.update_one(
-                    {"id": transaction.get("owner_id")},
-                    {"$inc": {"pending_payout": owner_amount, "total_earnings": owner_amount}}
-                )
+            # DON'T credit owner yet - money is held in escrow
+            # Owner gets paid when renter confirms receipt
+            logging.info(f"Payment received for booking {transaction['booking_id']} - funds held in escrow")
         
         return {
             "status": session.status,
