@@ -60,6 +60,8 @@ export const bookingsAPI = {
   create: (data) => api.post('/bookings', data),
   updateStatus: (id, status) => api.put(`/bookings/${id}/status`, null, { params: { status } }),
   getBookedDates: (listingId) => api.get(`/bookings/listing/${listingId}/dates`),
+  confirmReceipt: (id) => api.post(`/bookings/${id}/confirm-receipt`),
+  reportIssue: (id, issue) => api.post(`/bookings/${id}/report-issue`, null, { params: { issue } }),
 };
 
 // Reviews API
