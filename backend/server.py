@@ -1498,6 +1498,13 @@ CATEGORIES = [
     {"id": "tradies", "name": "Tradies & Handymen", "icon": "hammer"},
     {"id": "manpower", "name": "Labor & Helpers", "icon": "users"},
     {"id": "drivers", "name": "Drivers & Delivery", "icon": "truck"},
+    # Services (New)
+    {"id": "lessons", "name": "Private Lessons & Tutoring", "icon": "graduation-cap"},
+    {"id": "fitness", "name": "Fitness & Personal Training", "icon": "heart-pulse"},
+    {"id": "beauty", "name": "Beauty & Wellness", "icon": "sparkles"},
+    {"id": "creative", "name": "Creative Services", "icon": "palette"},
+    {"id": "professional", "name": "Professional Services", "icon": "briefcase"},
+    {"id": "adult", "name": "Adult Services (18+)", "icon": "flame"},
     # Home & Living
     {"id": "tools", "name": "Tools & DIY", "icon": "wrench"},
     {"id": "kitchen", "name": "Kitchen & Appliances", "icon": "utensils"},
