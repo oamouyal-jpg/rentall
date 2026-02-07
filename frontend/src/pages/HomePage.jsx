@@ -87,7 +87,7 @@ export default function HomePage() {
 
             {/* Quick Categories */}
             <div className="flex flex-wrap gap-2 mt-6">
-              {['cars', 'heavy-machinery', 'tradies', 'tools', 'party', 'camping'].map((catId) => {
+              {['cars', 'heavy-machinery', 'tradies', 'lessons', 'party', 'adult'].map((catId) => {
                 const cat = categories.find(c => c.id === catId);
                 return cat ? (
                   <Link
@@ -100,6 +100,84 @@ export default function HomePage() {
                 ) : null;
               })}
             </div>
+          </div>
+        </div>
+      </section>
+
+      {/* How It Works Section */}
+      <section className="py-16 bg-gradient-to-b from-stone-900 to-stone-800 text-white">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl md:text-4xl font-bold font-heading mb-4">How RentAll Works</h2>
+            <p className="text-stone-300 text-lg max-w-2xl mx-auto">
+              Rent anything from anyone, or earn money by renting out your stuff. It's simple, safe, and secure.
+            </p>
+          </div>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
+            {/* For Renters */}
+            <div className="bg-white/5 rounded-2xl p-8 backdrop-blur-sm">
+              <h3 className="text-xl font-semibold mb-6 text-[#E05D44]">👤 Want to Rent Something?</h3>
+              <div className="space-y-4">
+                <div className="flex gap-4">
+                  <span className="w-8 h-8 rounded-full bg-[#E05D44] text-white flex items-center justify-center font-bold shrink-0">1</span>
+                  <div>
+                    <h4 className="font-semibold">Search & Find</h4>
+                    <p className="text-stone-400 text-sm">Browse categories or search for what you need</p>
+                  </div>
+                </div>
+                <div className="flex gap-4">
+                  <span className="w-8 h-8 rounded-full bg-[#E05D44] text-white flex items-center justify-center font-bold shrink-0">2</span>
+                  <div>
+                    <h4 className="font-semibold">Book & Pay Securely</h4>
+                    <p className="text-stone-400 text-sm">Your payment is protected until you receive the item</p>
+                  </div>
+                </div>
+                <div className="flex gap-4">
+                  <span className="w-8 h-8 rounded-full bg-[#E05D44] text-white flex items-center justify-center font-bold shrink-0">3</span>
+                  <div>
+                    <h4 className="font-semibold">Use & Confirm</h4>
+                    <p className="text-stone-400 text-sm">Confirm receipt to release payment to the owner</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            {/* For Owners */}
+            <div className="bg-white/5 rounded-2xl p-8 backdrop-blur-sm">
+              <h3 className="text-xl font-semibold mb-6 text-[#8DA399]">💰 Want to Earn Money?</h3>
+              <div className="space-y-4">
+                <div className="flex gap-4">
+                  <span className="w-8 h-8 rounded-full bg-[#8DA399] text-white flex items-center justify-center font-bold shrink-0">1</span>
+                  <div>
+                    <h4 className="font-semibold">List Your Item or Service</h4>
+                    <p className="text-stone-400 text-sm">Add photos, set your price (hourly, daily, or weekly)</p>
+                  </div>
+                </div>
+                <div className="flex gap-4">
+                  <span className="w-8 h-8 rounded-full bg-[#8DA399] text-white flex items-center justify-center font-bold shrink-0">2</span>
+                  <div>
+                    <h4 className="font-semibold">Get Bookings</h4>
+                    <p className="text-stone-400 text-sm">Accept or decline requests from renters</p>
+                  </div>
+                </div>
+                <div className="flex gap-4">
+                  <span className="w-8 h-8 rounded-full bg-[#8DA399] text-white flex items-center justify-center font-bold shrink-0">3</span>
+                  <div>
+                    <h4 className="font-semibold">Get Paid (95% is yours!)</h4>
+                    <p className="text-stone-400 text-sm">Payment released after renter confirms receipt</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <div className="text-center mt-12">
+            <Link to="/register">
+              <Button className="bg-[#E05D44] hover:bg-[#C54E36] text-white rounded-full px-8 py-6 text-lg">
+                Get Started - It's Free
+              </Button>
+            </Link>
           </div>
         </div>
       </section>
