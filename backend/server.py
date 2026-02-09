@@ -908,7 +908,7 @@ async def confirm_receipt(
             # Create transfer to connected account
             transfer = stripe.Transfer.create(
                 amount=int(owner_payout * 100),  # Convert to cents
-                currency="usd",
+                currency="aud",
                 destination=owner["stripe_account_id"],
                 description=f"Payout for booking {booking_id}"
             )
@@ -1205,7 +1205,7 @@ async def create_checkout(
             "payment_method_types": ["card"],
             "line_items": [{
                 "price_data": {
-                    "currency": "usd",
+                    "currency": "aud",
                     "unit_amount": total_cents,
                     "product_data": {
                         "name": booking.get("listing_title", "Rental Booking"),
@@ -1245,7 +1245,7 @@ async def create_checkout(
             "user_id": current_user["id"],
             "owner_id": booking["owner_id"],
             "amount": booking["total_price"],
-            "currency": "usd",
+            "currency": "aud",
             "platform_fee": booking["platform_fee"],
             "owner_amount": booking["total_price"] - booking["platform_fee"],
             "owner_stripe_account": owner_stripe_account,
