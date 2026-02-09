@@ -451,15 +451,14 @@ async def create_stripe_connect_account(
             return {"url": account_link.url, "account_id": current_user["stripe_account_id"]}
         
         # Create new Stripe Connect Express account
+        # Note: Don't specify country - let Stripe determine from user's location
         account = stripe.Account.create(
             type="express",
-            country="US",
             email=current_user["email"],
             capabilities={
                 "card_payments": {"requested": True},
                 "transfers": {"requested": True},
             },
-            business_type="individual",
             metadata={
                 "user_id": current_user["id"],
                 "platform": "rentall"
@@ -481,6 +480,9 @@ async def create_stripe_connect_account(
         )
         
         return {"url": account_link.url, "account_id": account.id}
+    except stripe.error.AuthenticationError as e:
+        logging.error(f"Stripe API key error: {e}")
+        raise HTTPException(status_code=401, detail="Stripe API key is invalid. Please contact support.")
     except stripe.error.StripeError as e:
         logging.error(f"Stripe Connect error: {e}")
         raise HTTPException(status_code=400, detail=str(e))
