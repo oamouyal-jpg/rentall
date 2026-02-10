@@ -17,7 +17,7 @@ from emergentintegrations.payments.stripe.checkout import StripeCheckout, Checko
 from twilio.rest import Client as TwilioClient
 
 ROOT_DIR = Path(__file__).parent
-load_dotenv(ROOT_DIR / '.env')
+load_dotenv(ROOT_DIR / '.env', override=True)
 
 # MongoDB connection
 mongo_url = os.environ['MONGO_URL']
