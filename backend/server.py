@@ -1492,6 +1492,10 @@ async def request_payout(current_user: dict = Depends(get_current_user)):
 # ============== CATEGORIES ==============
 
 CATEGORIES = [
+    # Accommodations
+    {"id": "accommodations", "name": "Accommodations", "icon": "home"},
+    {"id": "rooms", "name": "Rooms & Apartments", "icon": "bed"},
+    {"id": "vacation-homes", "name": "Vacation Homes", "icon": "palmtree"},
     # Vehicles & Transport
     {"id": "cars", "name": "Cars", "icon": "car"},
     {"id": "motorcycles", "name": "Motorcycles & Scooters", "icon": "bike"},
