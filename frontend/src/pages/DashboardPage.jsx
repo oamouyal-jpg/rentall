@@ -30,6 +30,7 @@ export default function DashboardPage() {
   const [myBookings, setMyBookings] = useState([]);
   const [bookingRequests, setBookingRequests] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [activeTab, setActiveTab] = useState('listings');
 
   useEffect(() => {
     if (!authLoading && !user) {
