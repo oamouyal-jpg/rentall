@@ -47,11 +47,11 @@ export default function HomePage() {
       <section className="relative overflow-hidden">
         <div className="absolute inset-0">
           <img
-            src="https://images.unsplash.com/photo-1725042893312-5ec0dea9e369?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NjAzMzN8MHwxfHNlYXJjaHwxfHxtb2Rlcm4lMjBsaXZpbmclMjByb29tJTIwYnJpZ2h0fGVufDB8fHx8MTc3MDE2MjQ2NHww&ixlib=rb-4.1.0&q=85"
-            alt="Hero background"
+            src="https://images.unsplash.com/photo-1765863237835-1dbaddd296d5?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NjY2NjV8MHwxfHNlYXJjaHw0fHxwZW9wbGUlMjByZW50aW5nJTIwY2FyJTIwYmlrZSUyMHNjb290ZXIlMjBvdXRkb29yJTIwYWR2ZW50dXJlfGVufDB8fHx8MTc3MDcxMDc0NXww&ixlib=rb-4.1.0&q=85"
+            alt="Man riding scooter with surfboard - lifestyle rental"
             className="w-full h-full object-cover"
           />
-          <div className="absolute inset-0 bg-gradient-to-r from-stone-900/80 via-stone-900/60 to-transparent" />
+          <div className="absolute inset-0 bg-gradient-to-r from-stone-900/85 via-stone-900/70 to-stone-900/40" />
         </div>
 
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24 md:py-32">

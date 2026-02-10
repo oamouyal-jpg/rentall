@@ -168,9 +168,16 @@ export default function DashboardPage() {
           </Link>
         </div>
 
-        {/* Stats */}
+        {/* Stats - Clickable */}
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
-          <div className="bg-white rounded-2xl border border-stone-100 p-6">
+          <button 
+            onClick={() => {
+              const tabsList = document.querySelector('[data-testid="tab-listings"]');
+              if (tabsList) tabsList.click();
+            }}
+            className="bg-white rounded-2xl border border-stone-100 p-6 hover:border-[#E05D44]/50 hover:shadow-md transition-all text-left cursor-pointer"
+            data-testid="stat-listings"
+          >
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 rounded-xl bg-[#E05D44]/10 flex items-center justify-center">
                 <Package className="h-5 w-5 text-[#E05D44]" />
@@ -180,8 +187,15 @@ export default function DashboardPage() {
                 <p className="text-sm text-stone-500">My Listings</p>
               </div>
             </div>
-          </div>
-          <div className="bg-white rounded-2xl border border-stone-100 p-6">
+          </button>
+          <button 
+            onClick={() => {
+              const tabsList = document.querySelector('[data-testid="tab-rentals"]');
+              if (tabsList) tabsList.click();
+            }}
+            className="bg-white rounded-2xl border border-stone-100 p-6 hover:border-[#8DA399]/50 hover:shadow-md transition-all text-left cursor-pointer"
+            data-testid="stat-rentals"
+          >
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 rounded-xl bg-[#8DA399]/10 flex items-center justify-center">
                 <Calendar className="h-5 w-5 text-[#8DA399]" />
@@ -191,8 +205,15 @@ export default function DashboardPage() {
                 <p className="text-sm text-stone-500">My Rentals</p>
               </div>
             </div>
-          </div>
-          <div className="bg-white rounded-2xl border border-stone-100 p-6">
+          </button>
+          <button 
+            onClick={() => {
+              const tabsList = document.querySelector('[data-testid="tab-requests"]');
+              if (tabsList) tabsList.click();
+            }}
+            className="bg-white rounded-2xl border border-stone-100 p-6 hover:border-amber-500/50 hover:shadow-md transition-all text-left cursor-pointer"
+            data-testid="stat-requests"
+          >
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 rounded-xl bg-amber-500/10 flex items-center justify-center">
                 <Users className="h-5 w-5 text-amber-500" />
@@ -204,7 +225,7 @@ export default function DashboardPage() {
                 <p className="text-sm text-stone-500">Pending Requests</p>
               </div>
             </div>
-          </div>
+          </button>
         </div>
 
         {/* Tabs */}
