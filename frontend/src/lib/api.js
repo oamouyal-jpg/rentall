@@ -27,7 +27,12 @@ api.interceptors.response.use(
     if (error.response?.status === 401) {
       localStorage.removeItem('token');
       localStorage.removeItem('user');
-      window.location.href = '/login';
+      // Only redirect if not already on login/register page and not a background token check
+      const isAuthPage = window.location.pathname === '/login' || window.location.pathname === '/register';
+      const isTokenCheck = error.config?.url === '/auth/me';
+      if (!isAuthPage && !isTokenCheck) {
+        window.location.href = '/login';
+      }
     }
     return Promise.reject(error);
   }
