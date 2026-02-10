@@ -40,6 +40,7 @@ function App() {
   return (
     <AuthProvider>
       <BrowserRouter>
+        <ScrollToTop />
         <div className="min-h-screen bg-[#FAFAF9] flex flex-col">
           <Navbar />
           <main className="flex-1">
