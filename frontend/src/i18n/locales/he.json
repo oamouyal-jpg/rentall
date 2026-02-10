@@ -1,0 +1,214 @@
+{
+  "common": {
+    "search": "חיפוש",
+    "login": "התחברות",
+    "signup": "הרשמה",
+    "logout": "התנתקות",
+    "home": "בית",
+    "messages": "הודעות",
+    "dashboard": "לוח בקרה",
+    "settings": "הגדרות",
+    "loading": "טוען...",
+    "save": "שמור",
+    "cancel": "ביטול",
+    "submit": "שלח",
+    "back": "חזרה",
+    "next": "הבא",
+    "or": "או",
+    "and": "ו"
+  },
+  "nav": {
+    "searchPlaceholder": "חפש כל דבר...",
+    "listItem": "הוסף פריט"
+  },
+  "home": {
+    "hero": {
+      "title": "השכר כל דבר,",
+      "titleLine2": "בכל מקום",
+      "subtitle": "מכוניות, אופניים, ציוד כבד, כלי עבודה, בעלי מקצוע, ציוד למסיבות — אם זה קיים, אפשר להשכיר. חסוך אלפים, גישה לכל דבר, בכל זמן.",
+      "searchPlaceholder": "מה אתה צריך?"
+    },
+    "features": {
+      "securePayments": "תשלומים מאובטחים",
+      "securePaymentsDesc": "כל העסקאות מוגנות דרך הפלטפורמה שלנו.",
+      "easyBooking": "הזמנה קלה",
+      "easyBookingDesc": "הזמן פריטים מיידית או שלח הודעה לבעלים.",
+      "greatValue": "ערך מעולה",
+      "greatValueDesc": "חסוך כסף על ידי השכרה במקום קנייה."
+    },
+    "categories": "קטגוריות פופולריות",
+    "featuredListings": "מוצרים מומלצים"
+  },
+  "auth": {
+    "login": {
+      "title": "ברוך שובך",
+      "subtitle": "התחבר לחשבון RentAll שלך",
+      "email": "אימייל",
+      "password": "סיסמה",
+      "button": "התחבר",
+      "noAccount": "אין לך חשבון?",
+      "signupLink": "הירשם"
+    },
+    "register": {
+      "title": "צור חשבון",
+      "subtitle": "הצטרף ל-RentAll והתחל להשכיר היום",
+      "name": "שם מלא",
+      "email": "אימייל",
+      "password": "סיסמה",
+      "passwordHint": "חייב להיות לפחות 6 תווים",
+      "button": "צור חשבון",
+      "hasAccount": "כבר יש לך חשבון?",
+      "loginLink": "התחבר"
+    }
+  },
+  "listing": {
+    "create": {
+      "title": "הוסף פריט",
+      "subtitle": "שתף את הדברים שלך והתחל להרוויח. אתה שומר 95% מכל השכרה.",
+      "photos": "תמונות",
+      "photosHint": "הוסף עד 5 תמונות. התמונה הראשונה תהיה תמונת השער.",
+      "addPhoto": "הוסף תמונה",
+      "itemTitle": "כותרת",
+      "titlePlaceholder": "מה אתה משכיר?",
+      "category": "קטגוריה",
+      "categoryPlaceholder": "בחר קטגוריה",
+      "description": "תיאור",
+      "descriptionPlaceholder": "תאר את הפריט שלך, מצבו וכל דרישה...",
+      "location": "מיקום",
+      "locationPlaceholder": "עיר, אזור",
+      "damageDeposit": "פיקדון נזק (אופציונלי)",
+      "createButton": "צור מודעה"
+    },
+    "pricing": {
+      "title": "אפשרויות תמחור",
+      "subtitle": "קבע את מחירי ההשכרה. הפעל אפשרויות מרובות לגמישות.",
+      "hourlyRate": "תעריף לשעה",
+      "dailyRate": "תעריף ליום",
+      "weeklyRate": "תעריף לשבוע",
+      "pricePerHour": "מחיר לשעה",
+      "pricePerDay": "מחיר ליום",
+      "pricePerWeek": "מחיר לשבוע",
+      "minHours": "מינימום שעות",
+      "minDays": "מינימום ימים",
+      "saveMore": "חסוך יותר"
+    },
+    "surge": {
+      "title": "תמחור שיא",
+      "earnMore": "הרוויח יותר",
+      "subtitle": "גבה תעריפים גבוהים יותר בזמנים עמוסים כמו סופי שבוע.",
+      "percentage": "אחוז תוספת",
+      "weekends": "החל תוספת בסופי שבוע (שבת וראשון)"
+    },
+    "discounts": {
+      "title": "הנחות לטווח ארוך",
+      "subtitle": "משוך יותר הזמנות על ידי הצעת הנחות להשכרות ארוכות.",
+      "weekly": "7+ ימים",
+      "monthly": "30+ ימים",
+      "quarterly": "90+ ימים"
+    },
+    "whatNext": {
+      "title": "מה קורה אחר כך?",
+      "live": "המודעה שלך תהיה זמינה מיד",
+      "message": "שוכרים יכולים לשלוח הודעה או להזמין ישירות",
+      "earnings": "תקבל 95% מכל הזמנה (אנחנו לוקחים 5%)",
+      "payouts": "תשלומים מעובדים לאחר סיום ההשכרה"
+    },
+    "detail": {
+      "aboutItem": "על פריט זה",
+      "location": "מיקום",
+      "reviews": "ביקורות",
+      "noReviews": "אין ביקורות עדיין",
+      "messageOwner": "שלח הודעה",
+      "manageListing": "נהל מודעה"
+    }
+  },
+  "booking": {
+    "selectDates": "בחר תאריכים",
+    "selectDate": "בחר תאריך",
+    "hours": "מספר שעות",
+    "serviceFee": "עמלת שירות (5%)",
+    "total": "סה״כ",
+    "bookNow": "הזמן עכשיו",
+    "selectDatesToBook": "בחר תאריכים להזמנה",
+    "selectDateAndHours": "בחר תאריך ושעות",
+    "peakPricing": "תמחור שיא",
+    "discount": "הנחה",
+    "securePayment": "תשלום מאובטח דרך Stripe"
+  },
+  "categories": {
+    "cars": "מכוניות",
+    "motorcycles": "אופנועים",
+    "bikes": "אופניים",
+    "scooters": "קורקינטים",
+    "boats": "סירות",
+    "rvs": "קרוואנים",
+    "heavyMachinery": "ציוד כבד",
+    "tractors": "טרקטורים",
+    "forklifts": "מלגזות",
+    "trailers": "נגררים",
+    "tradies": "בעלי מקצוע",
+    "cleaners": "מנקים",
+    "gardeners": "גננים",
+    "movers": "הובלות",
+    "tools": "כלי עבודה",
+    "powerTools": "כלים חשמליים",
+    "ladders": "סולמות",
+    "partyEvents": "מסיבות ואירועים",
+    "speakers": "רמקולים ושמע",
+    "lighting": "תאורה",
+    "tents": "אוהלים",
+    "tables": "שולחנות וכיסאות",
+    "sports": "ציוד ספורט",
+    "camping": "קמפינג וטיולים",
+    "waterSports": "ספורט ימי",
+    "winterSports": "ספורט חורף",
+    "tech": "טכנולוגיה ואלקטרוניקה",
+    "cameras": "מצלמות",
+    "drones": "רחפנים",
+    "gaming": "משחקים",
+    "fashion": "אופנה",
+    "musical": "כלי נגינה",
+    "baby": "תינוקות וילדים"
+  },
+  "footer": {
+    "about": "אודות",
+    "howItWorks": "איך זה עובד",
+    "safety": "בטיחות",
+    "support": "תמיכה",
+    "legal": "משפטי",
+    "terms": "תנאי שימוש",
+    "privacy": "מדיניות פרטיות",
+    "copyright": "© 2026 RentAll. כל הזכויות שמורות."
+  },
+  "messages": {
+    "title": "הודעות",
+    "noConversations": "אין שיחות עדיין",
+    "startConversation": "התחל שיחה על ידי שליחת הודעה לבעל מודעה",
+    "typeMessage": "הקלד הודעה...",
+    "send": "שלח"
+  },
+  "dashboard": {
+    "title": "לוח בקרה",
+    "myListings": "המודעות שלי",
+    "myRentals": "ההשכרות שלי",
+    "requests": "בקשות",
+    "noListings": "אין מודעות עדיין",
+    "createFirst": "צור את המודעה הראשונה שלך",
+    "noRentals": "אין השכרות עדיין",
+    "browseItems": "חפש פריטים להשכרה",
+    "noRequests": "אין בקשות הזמנה"
+  },
+  "settings": {
+    "title": "הגדרות",
+    "profile": "פרופיל",
+    "verification": "אימות",
+    "payments": "תשלומים",
+    "language": "שפה",
+    "phoneVerification": "אימות טלפון",
+    "verifyPhone": "אמת את הטלפון שלך",
+    "phoneVerified": "טלפון מאומת",
+    "stripeConnect": "Stripe Connect",
+    "setupPayouts": "הגדר תשלומים",
+    "payoutsEnabled": "תשלומים מופעלים"
+  }
+}

@@ -87,7 +87,7 @@ export default function HomePage() {
 
             {/* Quick Categories */}
             <div className="flex flex-wrap gap-2 mt-6">
-              {['cars', 'heavy-machinery', 'tradies', 'lessons', 'party', 'adult'].map((catId) => {
+              {['cars', 'heavy-machinery', 'tradies', 'lessons', 'party', 'tools'].map((catId) => {
                 const cat = categories.find(c => c.id === catId);
                 return cat ? (
                   <Link
