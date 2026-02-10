@@ -9,6 +9,15 @@ Build an app similar to Airbnb but for renting anything - from music instruments
 - **Communication**: In-app messaging
 - **Features**: All (location search, reviews, booking calendar, image uploads, safety pages)
 - **App Type**: Progressive Web App (PWA) - installable on mobile devices
+- **Languages**: English, Spanish, French, Hebrew
+
+## Latest Updates (Feb 10, 2026)
+- ✅ **CRITICAL FIX**: Stripe API key issue resolved - `load_dotenv(override=True)` now properly loads live key
+- ✅ Homepage background changed to lifestyle image (scooter with surfboard)
+- ✅ Dashboard stat cards made clickable (filter to corresponding tabs)
+- ✅ PWA install prompt improved with floating button for mobile
+- ✅ Hebrew language support added
+- ✅ Adult Services category removed
 
 ## Architecture
 
