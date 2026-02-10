@@ -172,11 +172,8 @@ export default function DashboardPage() {
         {/* Stats - Clickable */}
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
           <button 
-            onClick={() => {
-              const tabsList = document.querySelector('[data-testid="tab-listings"]');
-              if (tabsList) tabsList.click();
-            }}
-            className="bg-white rounded-2xl border border-stone-100 p-6 hover:border-[#E05D44]/50 hover:shadow-md transition-all text-left cursor-pointer"
+            onClick={() => setActiveTab('listings')}
+            className={`bg-white rounded-2xl border p-6 hover:shadow-md transition-all text-left cursor-pointer ${activeTab === 'listings' ? 'border-[#E05D44] shadow-md' : 'border-stone-100 hover:border-[#E05D44]/50'}`}
             data-testid="stat-listings"
           >
             <div className="flex items-center gap-3">
@@ -190,11 +187,8 @@ export default function DashboardPage() {
             </div>
           </button>
           <button 
-            onClick={() => {
-              const tabsList = document.querySelector('[data-testid="tab-rentals"]');
-              if (tabsList) tabsList.click();
-            }}
-            className="bg-white rounded-2xl border border-stone-100 p-6 hover:border-[#8DA399]/50 hover:shadow-md transition-all text-left cursor-pointer"
+            onClick={() => setActiveTab('rentals')}
+            className={`bg-white rounded-2xl border p-6 hover:shadow-md transition-all text-left cursor-pointer ${activeTab === 'rentals' ? 'border-[#8DA399] shadow-md' : 'border-stone-100 hover:border-[#8DA399]/50'}`}
             data-testid="stat-rentals"
           >
             <div className="flex items-center gap-3">
@@ -208,11 +202,8 @@ export default function DashboardPage() {
             </div>
           </button>
           <button 
-            onClick={() => {
-              const tabsList = document.querySelector('[data-testid="tab-requests"]');
-              if (tabsList) tabsList.click();
-            }}
-            className="bg-white rounded-2xl border border-stone-100 p-6 hover:border-amber-500/50 hover:shadow-md transition-all text-left cursor-pointer"
+            onClick={() => setActiveTab('requests')}
+            className={`bg-white rounded-2xl border p-6 hover:shadow-md transition-all text-left cursor-pointer ${activeTab === 'requests' ? 'border-amber-500 shadow-md' : 'border-stone-100 hover:border-amber-500/50'}`}
             data-testid="stat-requests"
           >
             <div className="flex items-center gap-3">
@@ -230,7 +221,7 @@ export default function DashboardPage() {
         </div>
 
         {/* Tabs */}
-        <Tabs defaultValue="listings" className="space-y-6">
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
           <TabsList className="bg-stone-100 rounded-full p-1">
             <TabsTrigger value="listings" className="rounded-full" data-testid="tab-listings">
               My Listings
