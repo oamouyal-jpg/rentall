@@ -640,14 +640,35 @@ export default function ListingPage() {
 
                 {/* Book Button */}
                 {isOwner ? (
-                  <Link to="/dashboard">
+                  <div className="space-y-2">
+                    <Link to="/dashboard">
+                      <Button
+                        className="w-full h-12 rounded-full bg-stone-900 hover:bg-stone-800"
+                        data-testid="manage-listing-btn"
+                      >
+                        Manage listing
+                      </Button>
+                    </Link>
                     <Button
-                      className="w-full h-12 rounded-full bg-stone-900 hover:bg-stone-800"
-                      data-testid="manage-listing-btn"
+                      onClick={async () => {
+                        if (window.confirm('Are you sure you want to delete this listing?')) {
+                          try {
+                            await listingsAPI.delete(id);
+                            toast.success('Listing deleted');
+                            navigate('/dashboard');
+                          } catch (error) {
+                            toast.error('Failed to delete listing');
+                          }
+                        }
+                      }}
+                      variant="outline"
+                      className="w-full h-12 rounded-full text-red-600 border-red-200 hover:bg-red-50 hover:text-red-700"
+                      data-testid="delete-listing-btn"
                     >
-                      Manage listing
+                      <Trash2 className="h-4 w-4 mr-2" />
+                      Delete listing
                     </Button>
-                  </Link>
+                  </div>
                 ) : (
                   <Button
                     onClick={handleBooking}
