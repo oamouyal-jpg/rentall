@@ -1335,46 +1335,35 @@ async def get_payment_status(
 async def stripe_webhook(request: Request):
     body = await request.body()
     signature = request.headers.get("Stripe-Signature")
-    
-    host_url = str(request.base_url)
-    webhook_url = f"{host_url}api/webhook/stripe"
-    stripe_checkout = StripeCheckout(api_key=STRIPE_API_KEY, webhook_url=webhook_url)
+    webhook_secret = os.environ.get("STRIPE_WEBHOOK_SECRET", "")
     
     try:
-        webhook_response = await stripe_checkout.handle_webhook(body, signature)
+        event = stripe.Webhook.construct_event(body, signature, webhook_secret)
         
-        if webhook_response.payment_status == "paid":
-            session_id = webhook_response.session_id
+        if event["type"] == "checkout.session.completed":
+            session = event["data"]["object"]
+            session_id = session["id"]
+            payment_status = session.get("payment_status", "")
             
-            transaction = await db.payment_transactions.find_one({"session_id": session_id})
-            if transaction and transaction["payment_status"] != "paid":
-                await db.payment_transactions.update_one(
-                    {"session_id": session_id},
-                    {"$set": {
-                        "status": "completed",
-                        "payment_status": "paid"
-                    }}
-                )
-                
-                await db.bookings.update_one(
-                    {"id": transaction["booking_id"]},
-                    {"$set": {"status": "paid", "escrow_status": "held"}}
-                )
-                
-                # DON'T credit owner yet - money is held in escrow
-                # Owner gets paid when renter confirms receipt
-                booking = await db.bookings.find_one({"id": transaction["booking_id"]})
-                if booking:
-                    logging.info(f"Webhook: Payment received for booking {transaction['booking_id']} - funds held in escrow")
-                    # Create payout record
-                    await db.payouts.insert_one({
-                        "id": str(uuid.uuid4()),
-                        "owner_id": booking["owner_id"],
-                        "booking_id": booking["id"],
-                        "amount": owner_amount,
-                        "status": "pending",
-                        "created_at": datetime.now(timezone.utc).isoformat()
-                    })
+            if payment_status == "paid":
+                transaction = await db.payment_transactions.find_one({"session_id": session_id})
+                if transaction and transaction["payment_status"] != "paid":
+                    await db.payment_transactions.update_one(
+                        {"session_id": session_id},
+                        {"$set": {
+                            "status": "completed",
+                            "payment_status": "paid"
+                        }}
+                    )
+                    
+                    await db.bookings.update_one(
+                        {"id": transaction["booking_id"]},
+                        {"$set": {"status": "paid", "escrow_status": "held"}}
+                    )
+                    
+                    booking = await db.bookings.find_one({"id": transaction["booking_id"]})
+                    if booking:
+                        logging.info(f"Webhook: Payment received for booking {transaction['booking_id']} - funds held in escrow")
         
         return {"status": "ok"}
     except Exception as e:
