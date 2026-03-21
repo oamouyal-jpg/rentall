@@ -6,6 +6,7 @@ import { Button } from '../components/ui/button';
 import { Input } from '../components/ui/input';
 import { Label } from '../components/ui/label';
 import { Loader2 } from 'lucide-react';
+import { formatApiError } from '../lib/apiError';
 
 export default function LoginPage() {
   const { login } = useAuth();
@@ -28,7 +29,7 @@ export default function LoginPage() {
       navigate(from, { replace: true });
     } catch (error) {
       console.error('Login error:', error);
-      toast.error(error.response?.data?.detail || 'Invalid credentials');
+      toast.error(formatApiError(error, 'Invalid credentials'));
     } finally {
       setLoading(false);
     }

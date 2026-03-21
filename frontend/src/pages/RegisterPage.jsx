@@ -6,6 +6,7 @@ import { Button } from '../components/ui/button';
 import { Input } from '../components/ui/input';
 import { Label } from '../components/ui/label';
 import { Loader2 } from 'lucide-react';
+import { formatApiError } from '../lib/apiError';
 
 export default function RegisterPage() {
   const { register } = useAuth();
@@ -32,7 +33,7 @@ export default function RegisterPage() {
       navigate('/');
     } catch (error) {
       console.error('Register error:', error);
-      toast.error(error.response?.data?.detail || 'Registration failed');
+      toast.error(formatApiError(error, 'Registration failed'));
     } finally {
       setLoading(false);
     }
