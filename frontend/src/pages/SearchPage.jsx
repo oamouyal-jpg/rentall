@@ -16,6 +16,16 @@ import CategoryCard from '../components/CategoryCard';
 import ListingsMap from '../components/ListingsMap';
 import { Search, SlidersHorizontal, X, Loader2, Map, List, MapPin } from 'lucide-react';
 
+const WATER_SPORTS_TAGS = [
+  'Snorkelling',
+  'Paddleboarding (SUP)',
+  'Kayaking',
+  'Safety Gear',
+];
+const ACCOMMODATION_TAGS = [
+  'Room by the hour',
+];
+
 export default function SearchPage() {
   const [searchParams, setSearchParams] = useSearchParams();
   const [listings, setListings] = useState([]);
@@ -28,6 +38,7 @@ export default function SearchPage() {
   // Filter state
   const [query, setQuery] = useState(searchParams.get('q') || '');
   const [category, setCategory] = useState(searchParams.get('category') || '');
+  const [tag, setTag] = useState(searchParams.get('tag') || '');
   const [priceRange, setPriceRange] = useState([0, 500]);
   const [location, setLocation] = useState('');
 
@@ -42,6 +53,7 @@ export default function SearchPage() {
         const params = {};
         if (query) params.query = query;
         if (category) params.category = category;
+        if (tag) params.tag = tag;
         if (priceRange[0] > 0) params.min_price = priceRange[0];
         if (priceRange[1] < 500) params.max_price = priceRange[1];
 
@@ -56,25 +68,38 @@ export default function SearchPage() {
 
     const debounce = setTimeout(fetchListings, 300);
     return () => clearTimeout(debounce);
-  }, [query, category, priceRange]);
+  }, [query, category, tag, priceRange]);
 
   const handleSearch = (e) => {
     e.preventDefault();
     const newParams = new URLSearchParams();
     if (query) newParams.set('q', query);
     if (category) newParams.set('category', category);
+    if (tag) newParams.set('tag', tag);
     setSearchParams(newParams);
   };
 
   const clearFilters = () => {
     setQuery('');
     setCategory('');
+    setTag('');
     setPriceRange([0, 500]);
     setLocation('');
     setSearchParams({});
   };
 
-  const hasActiveFilters = query || category || priceRange[0] > 0 || priceRange[1] < 500;
+  const hasActiveFilters = query || category || tag || priceRange[0] > 0 || priceRange[1] < 500;
+  const isWaterSportsCategory = category === 'water-sports';
+  const isAccommodationCategory = category === 'accommodations' || category === 'rooms';
+  const selectableTags = isWaterSportsCategory
+    ? WATER_SPORTS_TAGS
+    : isAccommodationCategory
+      ? ACCOMMODATION_TAGS
+      : [];
+  const quickBrowseCategoryIds = ['cars', 'heavy-machinery', 'water-sports', 'tradies', 'tools', 'party', 'camping', 'electronics', 'fashion', 'other'];
+  const quickBrowseCategories = quickBrowseCategoryIds
+    .map((id) => categories.find((c) => c.id === id))
+    .filter(Boolean);
 
   // Filter listings with coordinates for map view
   const listingsWithCoords = listings.filter(l => l.latitude && l.longitude);
@@ -112,6 +137,22 @@ export default function SearchPage() {
                 ))}
               </SelectContent>
             </Select>
+
+            {selectableTags.length > 0 && (
+              <Select value={tag || "all-tags"} onValueChange={(val) => setTag(val === "all-tags" ? "" : val)}>
+                <SelectTrigger className="w-[220px] h-12 rounded-xl" data-testid="tag-select">
+                  <SelectValue placeholder="All types" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all-tags">All types</SelectItem>
+                  {selectableTags.map((t) => (
+                    <SelectItem key={t} value={t}>
+                      {t}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            )}
 
             <Button
               variant="outline"
@@ -203,7 +244,7 @@ export default function SearchPage() {
               Browse categories
             </h2>
             <div className="grid grid-cols-3 sm:grid-cols-5 md:grid-cols-10 gap-4">
-              {categories.slice(0, 10).map((cat) => (
+              {quickBrowseCategories.map((cat) => (
                 <CategoryCard key={cat.id} category={cat} variant="compact" />
               ))}
             </div>
@@ -218,6 +259,7 @@ export default function SearchPage() {
                 {listings.length} result{listings.length !== 1 ? 's' : ''}
                 {query && ` for "${query}"`}
                 {category && ` in ${categories.find((c) => c.id === category)?.name}`}
+                {tag && ` (${tag})`}
               </>
             ) : (
               'All listings'

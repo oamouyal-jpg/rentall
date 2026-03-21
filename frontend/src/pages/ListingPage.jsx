@@ -62,6 +62,7 @@ export default function ListingPage() {
   // Flexible pricing state
   const [durationType, setDurationType] = useState('daily');
   const [hours, setHours] = useState(1);
+  const [quantity, setQuantity] = useState(1);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -129,6 +130,7 @@ export default function ListingPage() {
         end_date: format(dateRange.to || dateRange.from, 'yyyy-MM-dd'),
         duration_type: durationType,
         hours: durationType === 'hourly' ? hours : null,
+        quantity,
       };
       
       const bookingRes = await bookingsAPI.create(bookingData);
@@ -192,6 +194,7 @@ export default function ListingPage() {
   const hasWeekly = listing.price_per_week && listing.price_per_week > 0;
   const hasSurge = listing.surge_enabled;
   const hasDiscounts = (listing.discount_weekly > 0) || (listing.discount_monthly > 0) || (listing.discount_quarterly > 0);
+  const stockQuantity = listing.stock_quantity || 1;
   
   // Set default duration type based on available pricing
   const defaultDurationType = hasHourly ? 'hourly' : hasDaily ? 'daily' : 'weekly';
@@ -260,9 +263,11 @@ export default function ListingPage() {
     discountLabel = `${listing.discount_weekly}% off (7+ days)`;
   }
   
-  const totalPrice = basePrice + surgeAmount - discountAmount;
+  const unitTotalPrice = basePrice + surgeAmount - discountAmount;
+  const totalPrice = unitTotalPrice * quantity;
   const platformFee = totalPrice * 0.05;
   const isOwner = user?.id === listing.owner_id;
+  const listingTags = Array.isArray(listing.tags) ? listing.tags : [];
 
   const images = listing.images?.length > 0
     ? listing.images
@@ -415,6 +420,18 @@ export default function ListingPage() {
               <h2 className="text-lg font-semibold text-stone-900 mb-3 font-heading">
                 About this item
               </h2>
+              {listingTags.length > 0 && (
+                <div className="flex flex-wrap gap-2 mb-3">
+                  {listingTags.map((listingTag, index) => (
+                    <span
+                      key={`${listingTag}-${index}`}
+                      className="px-2.5 py-1 rounded-full text-xs bg-[#E05D44]/10 text-[#E05D44]"
+                    >
+                      {listingTag}
+                    </span>
+                  ))}
+                </div>
+              )}
               <p className="text-stone-600 leading-relaxed whitespace-pre-line">
                 {listing.description}
               </p>
@@ -605,6 +622,32 @@ export default function ListingPage() {
                 {/* Price Breakdown */}
                 {basePrice > 0 && (
                   <div className="space-y-2 mb-6 pb-6 border-b border-stone-100">
+                    {stockQuantity > 1 && (
+                      <div className="flex justify-between text-stone-600">
+                        <span>Units</span>
+                        <div className="flex items-center gap-2">
+                          <Button
+                            type="button"
+                            variant="outline"
+                            size="icon"
+                            className="h-7 w-7 rounded-full"
+                            onClick={() => setQuantity((q) => Math.max(1, q - 1))}
+                          >
+                            -
+                          </Button>
+                          <span className="min-w-[16px] text-center">{quantity}</span>
+                          <Button
+                            type="button"
+                            variant="outline"
+                            size="icon"
+                            className="h-7 w-7 rounded-full"
+                            onClick={() => setQuantity((q) => Math.min(stockQuantity, q + 1))}
+                          >
+                            +
+                          </Button>
+                        </div>
+                      </div>
+                    )}
                     <div className="flex justify-between text-stone-600">
                       <span>{priceLabel}</span>
                       <span>{formatPrice(basePrice)}</span>
@@ -625,6 +668,12 @@ export default function ListingPage() {
                           {discountLabel}
                         </span>
                         <span>-{formatPrice(discountAmount)}</span>
+                      </div>
+                    )}
+                    {quantity > 1 && (
+                      <div className="flex justify-between text-stone-600">
+                        <span>Subtotal ({quantity} units)</span>
+                        <span>{formatPrice(totalPrice)}</span>
                       </div>
                     )}
                     <div className="flex justify-between text-stone-600">

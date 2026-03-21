@@ -64,7 +64,7 @@
   "listing": {
     "create": {
       "title": "Publicar un artículo",
-      "subtitle": "Comparte tus cosas y empieza a ganar. Te quedas con el 95% de cada alquiler.",
+      "subtitle": "Comparte tus cosas y empieza a ganar.",
       "photos": "Fotos",
       "photosHint": "Añade hasta 5 fotos. La primera foto será la imagen de portada.",
       "addPhoto": "Añadir foto",
@@ -110,7 +110,7 @@
       "title": "¿Qué pasa después?",
       "live": "Tu anuncio estará activo inmediatamente",
       "message": "Los inquilinos pueden enviarte mensajes o reservar directamente",
-      "earnings": "Recibirás el 95% de cada reserva (nosotros tomamos el 5%)",
+      "earnings": "Tu pago se procesa según nuestros términos de tarifas vigentes.",
       "payouts": "Los pagos se procesan después de completar el alquiler"
     },
     "detail": {

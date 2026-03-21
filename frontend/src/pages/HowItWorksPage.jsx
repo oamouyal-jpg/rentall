@@ -55,7 +55,7 @@ export default function HowItWorksPage() {
     },
     {
       title: "Get paid",
-      description: "Receive 95% of the rental price directly to your account. We only take a 5% service fee."
+      description: "Receive rental payouts directly to your account based on current fee terms."
     }
   ];
 

@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
+import { BrowserRouter, Routes, Route, useLocation, useNavigate, Link } from "react-router-dom";
 import { Toaster } from "sonner";
 import { useEffect } from "react";
 import { AuthProvider } from "./context/AuthContext";
@@ -11,6 +11,37 @@ function ScrollToTop() {
     window.scrollTo(0, 0);
   }, [pathname]);
   return null;
+}
+
+function PageNavButtons() {
+  const navigate = useNavigate();
+  const { pathname } = useLocation();
+  const isHome = pathname === "/";
+
+  return (
+    <div className="border-b border-stone-200 bg-[#FAFAF9]">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 flex items-center gap-2">
+        <button
+          onClick={() => navigate(-1)}
+          className="px-3 py-1.5 rounded-full border border-stone-300 text-sm text-stone-700 hover:bg-stone-100 transition-colors"
+          data-testid="global-back-btn"
+        >
+          Back
+        </button>
+        <Link
+          to="/"
+          className={`px-3 py-1.5 rounded-full border text-sm transition-colors ${
+            isHome
+              ? "border-stone-200 text-stone-400 pointer-events-none"
+              : "border-stone-300 text-stone-700 hover:bg-stone-100"
+          }`}
+          data-testid="global-home-btn"
+        >
+          Home
+        </Link>
+      </div>
+    </div>
+  );
 }
 
 // Pages
@@ -43,6 +74,7 @@ function App() {
         <ScrollToTop />
         <div className="min-h-screen bg-[#FAFAF9] flex flex-col">
           <Navbar />
+          <PageNavButtons />
           <main className="flex-1">
             <Routes>
               <Route path="/" element={<HomePage />} />

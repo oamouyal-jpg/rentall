@@ -87,7 +87,7 @@ export default function HomePage() {
 
             {/* Quick Categories */}
             <div className="flex flex-wrap gap-2 mt-6">
-              {['cars', 'heavy-machinery', 'tradies', 'lessons', 'party', 'tools'].map((catId) => {
+              {['cars', 'heavy-machinery', 'water-sports', 'tradies', 'lessons', 'tools'].map((catId) => {
                 const cat = categories.find(c => c.id === catId);
                 return cat ? (
                   <Link
@@ -164,7 +164,7 @@ export default function HomePage() {
                 <div className="flex gap-4">
                   <span className="w-8 h-8 rounded-full bg-[#8DA399] text-white flex items-center justify-center font-bold shrink-0">3</span>
                   <div>
-                    <h4 className="font-semibold">Get Paid (95% is yours!)</h4>
+                    <h4 className="font-semibold">Get Paid</h4>
                     <p className="text-stone-400 text-sm">Payment released after renter confirms receipt</p>
                   </div>
                 </div>
@@ -242,7 +242,7 @@ export default function HomePage() {
 
           {/* Featured Categories Grid */}
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-8">
-            {['cars', 'heavy-machinery', 'tradies', 'tools', 'party', 'camping'].map((catId) => {
+            {['cars', 'heavy-machinery', 'water-sports', 'tools', 'party', 'camping'].map((catId) => {
               const cat = categories.find(c => c.id === catId);
               return cat ? <CategoryCard key={cat.id} category={cat} /> : null;
             })}

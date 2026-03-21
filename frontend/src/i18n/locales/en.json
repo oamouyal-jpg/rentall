@@ -64,7 +64,7 @@
   "listing": {
     "create": {
       "title": "List an item",
-      "subtitle": "Share your stuff and start earning. You keep 95% of every rental.",
+      "subtitle": "Share your stuff and start earning.",
       "photos": "Photos",
       "photosHint": "Add up to 5 photos. First photo will be the cover image.",
       "addPhoto": "Add photo",
@@ -110,7 +110,7 @@
       "title": "What happens next?",
       "live": "Your listing will be live immediately",
       "message": "Renters can message you or book directly",
-      "earnings": "You'll receive 95% of each booking (we take 5%)",
+      "earnings": "Your payout is processed according to our current fee terms.",
       "payouts": "Payouts are processed after rental completion"
     },
     "detail": {

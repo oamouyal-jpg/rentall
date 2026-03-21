@@ -64,7 +64,7 @@
   "listing": {
     "create": {
       "title": "Publier une annonce",
-      "subtitle": "Partagez vos affaires et commencez à gagner. Vous gardez 95% de chaque location.",
+      "subtitle": "Partagez vos affaires et commencez à gagner.",
       "photos": "Photos",
       "photosHint": "Ajoutez jusqu'à 5 photos. La première photo sera l'image de couverture.",
       "addPhoto": "Ajouter une photo",
@@ -110,7 +110,7 @@
       "title": "Que se passe-t-il ensuite ?",
       "live": "Votre annonce sera en ligne immédiatement",
       "message": "Les locataires peuvent vous envoyer un message ou réserver directement",
-      "earnings": "Vous recevrez 95% de chaque réservation (nous prenons 5%)",
+      "earnings": "Votre paiement est traite selon nos conditions tarifaires en vigueur.",
       "payouts": "Les paiements sont traités après la fin de la location"
     },
     "detail": {

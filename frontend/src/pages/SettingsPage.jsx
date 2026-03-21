@@ -189,7 +189,7 @@ export default function SettingsPage() {
             Get Paid Automatically
           </h2>
           <p className="text-stone-600 text-sm mb-4">
-            Connect your Stripe account to receive 95% of each rental directly. No more waiting for manual payouts!
+            Connect your Stripe account to receive rental payouts directly. No more waiting for manual payouts!
           </p>
 
           {stripeStatus?.connected ? (

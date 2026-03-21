@@ -12,6 +12,7 @@ export default function ListingCard({ listing }) {
     avg_rating,
     review_count,
     category,
+    tags = [],
   } = listing;
 
   return (
@@ -55,6 +56,24 @@ export default function ListingCard({ listing }) {
             <MapPin className="h-3.5 w-3.5" />
             <span className="line-clamp-1">{location}</span>
           </div>
+
+          {tags.length > 0 && (
+            <div className="flex flex-wrap gap-1.5 mb-3">
+              {tags.slice(0, 2).map((tag) => (
+                <span
+                  key={tag}
+                  className="px-2 py-0.5 rounded-full text-xs bg-[#E05D44]/10 text-[#E05D44]"
+                >
+                  {tag}
+                </span>
+              ))}
+              {tags.length > 2 && (
+                <span className="px-2 py-0.5 rounded-full text-xs bg-stone-100 text-stone-600">
+                  +{tags.length - 2}
+                </span>
+              )}
+            </div>
+          )}
 
           <div className="flex items-baseline gap-1">
             <span className="font-bold text-stone-900 text-lg">

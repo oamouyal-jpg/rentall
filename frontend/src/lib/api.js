@@ -1,7 +1,18 @@
 import axios from 'axios';
 
-const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
-const API = `${BACKEND_URL}/api`;
+/** Backend base URL (no trailing slash). Falls back to same origin so production PWA works when API is on the same host. */
+export function getBackendUrl() {
+  const fromEnv = process.env.REACT_APP_BACKEND_URL;
+  if (fromEnv && String(fromEnv).trim()) {
+    return String(fromEnv).replace(/\/$/, '');
+  }
+  if (typeof window !== 'undefined' && window.location?.origin) {
+    return window.location.origin;
+  }
+  return '';
+}
+
+const API = `${getBackendUrl()}/api`;
 
 // Create axios instance
 const api = axios.create({

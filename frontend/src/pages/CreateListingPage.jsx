@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 import { useAuth } from '../context/AuthContext';
-import { listingsAPI, categoriesAPI, uploadAPI } from '../lib/api';
+import { listingsAPI, categoriesAPI, uploadAPI, getBackendUrl } from '../lib/api';
 import { Button } from '../components/ui/button';
 import { Input } from '../components/ui/input';
 import { Label } from '../components/ui/label';
@@ -18,6 +18,16 @@ import {
 } from '../components/ui/select';
 import { Loader2, Upload, X, MapPin, Image as ImageIcon, DollarSign, Clock, Calendar, CalendarRange, TrendingUp, Percent, Tag } from 'lucide-react';
 
+const WATER_SPORTS_TAGS = [
+  'Snorkelling',
+  'Paddleboarding (SUP)',
+  'Kayaking',
+  'Safety Gear',
+];
+const ACCOMMODATION_TAGS = [
+  'Room by the hour',
+];
+
 export default function CreateListingPage() {
   const { user, loading: authLoading } = useAuth();
   const navigate = useNavigate();
@@ -30,6 +40,7 @@ export default function CreateListingPage() {
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [category, setCategory] = useState('');
+  const [selectedTags, setSelectedTags] = useState([]);
   
   // Flexible pricing
   const [enableHourly, setEnableHourly] = useState(false);
@@ -55,7 +66,16 @@ export default function CreateListingPage() {
   const [latitude, setLatitude] = useState(40.7128);
   const [longitude, setLongitude] = useState(-74.0060);
   const [images, setImages] = useState([]);
+  const [stockQuantity, setStockQuantity] = useState('1');
   const [damageDeposit, setDamageDeposit] = useState('');
+
+  const isWaterSportsCategory = category === 'water-sports';
+  const isAccommodationCategory = category === 'accommodations' || category === 'rooms';
+  const selectableTags = isWaterSportsCategory
+    ? WATER_SPORTS_TAGS
+    : isAccommodationCategory
+      ? ACCOMMODATION_TAGS
+      : [];
 
   useEffect(() => {
     if (!authLoading && !user) {
@@ -105,8 +125,7 @@ export default function CreateListingPage() {
               filename: file.name,
             });
             
-            const backendUrl = process.env.REACT_APP_BACKEND_URL;
-            const imageUrl = `${backendUrl}${res.data.url}`;
+            const imageUrl = `${getBackendUrl()}${res.data.url}`;
             setImages((prev) => [...prev, imageUrl]);
           } catch (err) {
             console.error('Upload error:', err);
@@ -157,6 +176,8 @@ export default function CreateListingPage() {
         title,
         description,
         category,
+        tags: selectableTags.length > 0 ? selectedTags : [],
+        stock_quantity: Math.max(1, parseInt(stockQuantity) || 1),
         price_per_hour: hasHourlyPrice ? parseFloat(pricePerHour) : null,
         price_per_day: hasDailyPrice ? parseFloat(pricePerDay) : null,
         price_per_week: hasWeeklyPrice ? parseFloat(pricePerWeek) : null,
@@ -189,6 +210,12 @@ export default function CreateListingPage() {
     }
   };
 
+  const toggleTag = (tag) => {
+    setSelectedTags((prev) =>
+      prev.includes(tag) ? prev.filter((t) => t !== tag) : [...prev, tag]
+    );
+  };
+
   if (authLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -207,7 +234,7 @@ export default function CreateListingPage() {
             List an item
           </h1>
           <p className="text-stone-600 mt-2">
-            Share your stuff and start earning. You keep 95% of every rental.
+            Share your stuff and start earning.
           </p>
         </div>
 
@@ -317,6 +344,35 @@ export default function CreateListingPage() {
               data-testid="listing-description-input"
             />
           </div>
+
+          {/* Category Sub-tags */}
+          {selectableTags.length > 0 && (
+            <div className="space-y-2">
+              <Label>Type (optional)</Label>
+              <p className="text-sm text-stone-500">
+                Help renters find your gear faster.
+              </p>
+              <div className="flex flex-wrap gap-2 pt-1">
+                {selectableTags.map((tag) => {
+                  const active = selectedTags.includes(tag);
+                  return (
+                    <button
+                      key={tag}
+                      type="button"
+                      onClick={() => toggleTag(tag)}
+                      className={`px-3 py-1.5 rounded-full text-sm border transition-colors ${
+                        active
+                          ? 'bg-[#E05D44]/10 text-[#E05D44] border-[#E05D44]/30'
+                          : 'bg-white text-stone-600 border-stone-200 hover:border-stone-300'
+                      }`}
+                    >
+                      {tag}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          )}
 
           {/* Pricing Options */}
           <div className="space-y-4">
@@ -580,6 +636,21 @@ export default function CreateListingPage() {
 
           {/* Damage Deposit */}
           <div className="space-y-2">
+            <Label htmlFor="stock-quantity">Units available</Label>
+            <Input
+              id="stock-quantity"
+              type="number"
+              min="1"
+              placeholder="1"
+              value={stockQuantity}
+              onChange={(e) => setStockQuantity(e.target.value)}
+              className="h-12 rounded-xl"
+              data-testid="listing-stock-input"
+            />
+          </div>
+
+          {/* Damage Deposit */}
+          <div className="space-y-2">
             <Label htmlFor="deposit">Damage deposit (optional)</Label>
             <div className="relative">
               <DollarSign className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-stone-400" />
@@ -620,7 +691,7 @@ export default function CreateListingPage() {
             <ul className="text-sm text-stone-600 space-y-1">
               <li>• Your listing will be live immediately</li>
               <li>• Renters can message you or book directly</li>
-              <li>• You'll receive 95% of each booking (we take 5%)</li>
+              <li>• Your payout is processed according to our current fee terms</li>
               <li>• Payouts are processed after rental completion</li>
             </ul>
           </div>
