@@ -1,6 +1,9 @@
 import axios from 'axios';
 
-/** Backend base URL (no trailing slash). Falls back to same origin so production PWA works when API is on the same host. */
+/**
+ * Absolute origin for image URLs (no trailing slash).
+ * Same host as the page in production.
+ */
 export function getBackendUrl() {
   const fromEnv = process.env.REACT_APP_BACKEND_URL;
   if (fromEnv && String(fromEnv).trim()) {
@@ -12,9 +15,23 @@ export function getBackendUrl() {
   return '';
 }
 
-const API = `${getBackendUrl()}/api`;
+/**
+ * Axios base URL for /api routes.
+ * - If REACT_APP_BACKEND_URL is set → use it (split frontend/backend dev).
+ * - Otherwise use same-origin `/api` (always correct on Render when API + SPA share one URL).
+ *   This avoids wrong hosts, mixed content, and env typos in production builds.
+ */
+function getApiBaseUrl() {
+  const fromEnv = process.env.REACT_APP_BACKEND_URL;
+  if (fromEnv && String(fromEnv).trim()) {
+    return `${String(fromEnv).replace(/\/$/, '')}/api`;
+  }
+  return '/api';
+}
 
-// Create axios instance (long timeout: Render free tier cold starts + Mongo can take 30–90s)
+const API = getApiBaseUrl();
+
+// Create axios instance (long timeout: Render cold start + slow Mongo first connect)
 const api = axios.create({
   baseURL: API,
   timeout: 120000,
@@ -32,7 +49,7 @@ api.interceptors.request.use((config) => {
   return config;
 });
 
-// Handle auth errors + one retry on transient network / cold start failures
+// Retry a few times on cold start / flaky mobile networks (no response object)
 api.interceptors.response.use(
   (response) => response,
   async (error) => {
@@ -42,17 +59,17 @@ api.interceptors.response.use(
     }
 
     const cfg = error.config;
-    const isNetworkish =
+    const networkFail =
       !error.response &&
       cfg &&
-      !cfg._networkRetry &&
       (error.code === 'ERR_NETWORK' ||
         error.code === 'ECONNABORTED' ||
         error.message === 'Network Error');
 
-    if (isNetworkish) {
-      cfg._networkRetry = true;
-      await new Promise((r) => setTimeout(r, 2500));
+    const n = cfg?._retryCount || 0;
+    if (networkFail && cfg && n < 3) {
+      cfg._retryCount = n + 1;
+      await new Promise((r) => setTimeout(r, 2000 * n + 1500));
       return api(cfg);
     }
 

@@ -1,6 +1,6 @@
 from fastapi import FastAPI, APIRouter, HTTPException, Depends, Request
 from fastapi.staticfiles import StaticFiles
-from fastapi.responses import FileResponse, RedirectResponse
+from fastapi.responses import FileResponse, RedirectResponse, JSONResponse
 from dotenv import load_dotenv
 from starlette.middleware.cors import CORSMiddleware
 from motor.motor_asyncio import AsyncIOMotorClient
@@ -23,9 +23,14 @@ load_dotenv(ROOT_DIR / '.env', override=True)
 # Static files directory (frontend build)
 STATIC_DIR = ROOT_DIR / "static"
 
-# MongoDB connection
+# MongoDB connection — bounded timeouts so requests fail fast instead of hanging forever
 mongo_url = os.environ['MONGO_URL']
-client = AsyncIOMotorClient(mongo_url)
+client = AsyncIOMotorClient(
+    mongo_url,
+    serverSelectionTimeoutMS=20000,
+    connectTimeoutMS=15000,
+    socketTimeoutMS=60000,
+)
 db = client[os.environ['DB_NAME']]
 
 # JWT Config - MUST be set in environment
@@ -1565,6 +1570,25 @@ CATEGORIES = [
 @api_router.get("/categories")
 async def get_categories():
     return CATEGORIES
+
+
+@api_router.get("/health")
+async def health_check():
+    """Use this in Render / browser to verify API + MongoDB."""
+    try:
+        await db.command("ping")
+        return {"status": "ok", "mongo": "connected"}
+    except Exception as e:
+        logging.exception("MongoDB health ping failed")
+        return JSONResponse(
+            status_code=503,
+            content={
+                "status": "error",
+                "mongo": "disconnected",
+                "detail": str(e)[:400],
+            },
+        )
+
 
 # ============== MOUNT API (must be before SPA catch-all) ==============
 @api_router.get("/")
