@@ -1,4 +1,4 @@
-const CACHE_NAME = 'rentall-cache-v1';
+const CACHE_NAME = 'rentall-cache-v2';
 const OFFLINE_URL = '/offline.html';
 
 // Assets to cache immediately on install
@@ -43,8 +43,13 @@ self.addEventListener('fetch', (event) => {
   // Skip non-GET requests
   if (event.request.method !== 'GET') return;
 
-  // Skip API requests (always fetch from network)
-  if (event.request.url.includes('/api/')) return;
+  // Skip API requests (always fetch from network). Match /api, /api/, /api/...
+  try {
+    const pathname = new URL(event.request.url).pathname;
+    if (pathname.startsWith('/api')) return;
+  } catch (_) {
+    return;
+  }
 
   event.respondWith(
     fetch(event.request)

@@ -53,8 +53,8 @@ if TWILIO_ACCOUNT_SID and TWILIO_AUTH_TOKEN:
 # Create the main app
 app = FastAPI(title="RentAll API")
 
-# Create a router with the /api prefix
-api_router = APIRouter(prefix="/api")
+# API routes (no prefix here — mounted at /api so SPA catch-all can't shadow them)
+api_router = APIRouter()
 
 # ============== MODELS ==============
 
@@ -92,6 +92,7 @@ class ListingBase(BaseModel):
     title: str
     description: str
     category: str
+    tags: List[str] = []
     price_per_hour: Optional[float] = None
     price_per_day: Optional[float] = None
     price_per_week: Optional[float] = None
@@ -99,6 +100,7 @@ class ListingBase(BaseModel):
     latitude: float
     longitude: float
     images: List[str] = []
+    stock_quantity: int = Field(default=1, ge=1)
     damage_deposit: Optional[float] = 0.0
     min_rental_hours: Optional[int] = 1
     min_rental_days: int = 1
@@ -143,6 +145,7 @@ class BookingBase(BaseModel):
     end_date: str
     duration_type: str = "daily"  # "hourly", "daily", "weekly"
     hours: Optional[int] = None  # For hourly bookings
+    quantity: int = Field(default=1, ge=1)
 
 class BookingCreate(BookingBase):
     pass
@@ -577,6 +580,7 @@ async def create_listing(
 @api_router.get("/listings", response_model=List[ListingResponse])
 async def get_listings(
     category: Optional[str] = None,
+    tag: Optional[str] = None,
     query: Optional[str] = None,
     min_price: Optional[float] = None,
     max_price: Optional[float] = None,
@@ -586,6 +590,9 @@ async def get_listings(
     
     if category:
         filter_query["category"] = category
+
+    if tag:
+        filter_query["tags"] = tag
     
     if query:
         filter_query["$or"] = [
@@ -640,7 +647,7 @@ async def update_listing(
     if listing["owner_id"] != current_user["id"]:
         raise HTTPException(status_code=403, detail="Not authorized")
     
-    allowed_fields = ["title", "description", "category", "price_per_day", "location", "latitude", "longitude", "images", "is_available"]
+    allowed_fields = ["title", "description", "category", "tags", "stock_quantity", "price_per_day", "location", "latitude", "longitude", "images", "is_available"]
     update_data = {k: v for k, v in updates.items() if k in allowed_fields}
     
     if update_data:
@@ -677,23 +684,33 @@ async def create_booking(
     if listing["owner_id"] == current_user["id"]:
         raise HTTPException(status_code=400, detail="Cannot book your own listing")
     
-    # Check for conflicting bookings
+    # Check for conflicting bookings and inventory
     start_date = datetime.fromisoformat(booking_data.start_date)
     end_date = datetime.fromisoformat(booking_data.end_date)
     
     if end_date < start_date:
         raise HTTPException(status_code=400, detail="End date must be after start date")
     
-    conflict = await db.bookings.find_one({
+    overlapping_bookings = await db.bookings.find({
         "listing_id": booking_data.listing_id,
         "status": {"$in": ["pending", "confirmed", "paid"]},
         "$or": [
             {"start_date": {"$lte": booking_data.end_date}, "end_date": {"$gte": booking_data.start_date}}
         ]
-    })
-    
-    if conflict:
-        raise HTTPException(status_code=400, detail="Dates not available")
+    }, {"_id": 0, "quantity": 1}).to_list(1000)
+
+    requested_quantity = booking_data.quantity or 1
+    if requested_quantity < 1:
+        raise HTTPException(status_code=400, detail="Quantity must be at least 1")
+
+    stock_quantity = listing.get("stock_quantity", 1) or 1
+    if requested_quantity > stock_quantity:
+        raise HTTPException(status_code=400, detail=f"Only {stock_quantity} unit(s) available")
+
+    booked_quantity = sum(b.get("quantity", 1) for b in overlapping_bookings)
+    if booked_quantity + requested_quantity > stock_quantity:
+        available_units = max(0, stock_quantity - booked_quantity)
+        raise HTTPException(status_code=400, detail=f"Only {available_units} unit(s) available for selected dates")
     
     # Calculate price based on duration type
     duration_type = booking_data.duration_type or "daily"
@@ -784,6 +801,9 @@ async def create_booking(
     if discount_applied > 0:
         discount_amount = total_price * (discount_applied / 100)
         total_price = round(total_price - discount_amount, 2)
+
+    # Apply quantity multiplier for multi-unit listings
+    total_price = round(total_price * requested_quantity, 2)
     
     platform_fee = round(total_price * (PLATFORM_FEE_PERCENT / 100), 2)
     
@@ -803,6 +823,7 @@ async def create_booking(
         "end_date": booking_data.end_date,
         "duration_type": duration_type,
         "hours": hours,
+        "quantity": requested_quantity,
         "surge_days": surge_days,
         "surge_percentage": surge_percentage if surge_days > 0 else 0,
         "discount_applied": discount_applied,
@@ -1545,14 +1566,16 @@ CATEGORIES = [
 async def get_categories():
     return CATEGORIES
 
-# ============== ROOT ==============
-
+# ============== MOUNT API (must be before SPA catch-all) ==============
 @api_router.get("/")
-async def root():
+async def api_root():
     return {"message": "RentAll API", "version": "1.0.0"}
 
-# Include the router in the main app
-app.include_router(api_router)
+
+# Mounted app owns all /api/* routes (Swagger at /api/docs)
+api_app = FastAPI(title="RentAll API")
+api_app.include_router(api_router)
+app.mount("/api", api_app)
 
 app.add_middleware(
     CORSMiddleware,
@@ -1568,8 +1591,6 @@ if STATIC_DIR.exists():
     
     @app.get("/{full_path:path}")
     async def serve_frontend(full_path: str):
-        if full_path.startswith("api"):
-            raise HTTPException(status_code=404, detail="Not found")
         file_path = STATIC_DIR / full_path
         if file_path.is_file():
             return FileResponse(file_path)
