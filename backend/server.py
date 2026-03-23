@@ -9,6 +9,7 @@ import os
 import logging
 import random
 from pathlib import Path
+from urllib.parse import urlparse, parse_qsl, urlencode, urlunparse
 from pydantic import BaseModel, Field, ConfigDict, EmailStr
 from typing import List, Optional, Dict
 import uuid
@@ -24,16 +25,60 @@ load_dotenv(ROOT_DIR / '.env', override=True)
 # Static files directory (frontend build)
 STATIC_DIR = ROOT_DIR / "static"
 
-# MongoDB connection — bounded timeouts so requests fail fast instead of hanging forever
-mongo_url = os.environ['MONGO_URL']
-client = AsyncIOMotorClient(
-    mongo_url,
-    serverSelectionTimeoutMS=20000,
-    connectTimeoutMS=15000,
-    socketTimeoutMS=60000,
-    tlsCAFile=certifi.where(),
-)
-db = client[os.environ['DB_NAME']]
+# MongoDB connection — bounded timeouts; TLS tuned for Atlas on Render/Linux
+def _normalize_mongo_url(url: str) -> str:
+    """Strip query flags that break Atlas TLS (e.g. tls=false)."""
+    try:
+        p = urlparse(url)
+        if not p.scheme.startswith("mongodb"):
+            return url
+        pairs = parse_qsl(p.query, keep_blank_values=True)
+        out = []
+        drop = {"tls", "ssl", "tlsallowinvalidcertificates", "tlsinsecure"}
+        for k, v in pairs:
+            lk = k.lower()
+            if lk in drop and v.lower() in ("false", "0", "no"):
+                continue
+            out.append((k, v))
+        new_query = urlencode(out)
+        return urlunparse(
+            (p.scheme, p.netloc, p.path, p.params, new_query, p.fragment)
+        )
+    except Exception:
+        return url
+
+
+def _mongo_client_kwargs():
+    """Atlas needs TLS; on Ubuntu/Render the system trust store usually works better than forcing certifi."""
+    kw = dict(
+        serverSelectionTimeoutMS=20000,
+        connectTimeoutMS=15000,
+        socketTimeoutMS=60000,
+    )
+    # Optional: path to PEM bundle (advanced)
+    ca_file = os.environ.get("MONGO_TLS_CA_FILE")
+    if ca_file and os.path.isfile(ca_file):
+        kw["tlsCAFile"] = ca_file
+    elif os.environ.get("MONGO_USE_CERTIFI") == "1":
+        kw["tlsCAFile"] = certifi.where()
+    # DEBUG ONLY — if Atlas still fails, set MONGO_TLS_INSECURE=1 temporarily to confirm TLS is the issue
+    if os.environ.get("MONGO_TLS_INSECURE") == "1":
+        logging.warning(
+            "MONGO_TLS_INSECURE=1 — TLS certificate verification is OFF. Use only to debug, then fix CA/URI."
+        )
+        kw["tlsAllowInvalidCertificates"] = True
+    return kw
+
+
+mongo_url = _normalize_mongo_url(os.environ["MONGO_URL"].strip())
+if not mongo_url.startswith("mongodb+srv://") and "mongodb.net" in mongo_url:
+    logging.warning(
+        "MONGO_URL should use mongodb+srv:// for Atlas (Drivers connection string). "
+        "Direct mongodb:// host lists often cause TLS errors on Python."
+    )
+
+client = AsyncIOMotorClient(mongo_url, **_mongo_client_kwargs())
+db = client[os.environ["DB_NAME"]]
 
 # JWT Config - MUST be set in environment
 JWT_SECRET = os.environ.get('JWT_SECRET')

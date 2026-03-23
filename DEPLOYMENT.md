@@ -88,6 +88,18 @@ vercel
 vercel --prod
 ```
 
+## Atlas TLS / `SSL handshake failed` on Render
+
+If `/api/health` returns `mongo: disconnected` with `TLSV1_ALERT_INTERNAL_ERROR`:
+
+1. **Use the Atlas “Drivers” connection string** — it must start with **`mongodb+srv://`**.  
+   Avoid pasting a `mongodb://` host list unless you know what you’re doing; Python often mis-handles TLS with direct shard hosts.
+2. **URL-encode the DB user password** in the URI (`@`, `#`, `/`, `:`, etc.).
+3. **Network Access** in Atlas: allow **`0.0.0.0/0`** (at least while testing).
+4. **Do not** add `tls=false` or `ssl=false` to the URI.
+5. **Optional Render env (debug only):** `MONGO_TLS_INSECURE=1` turns off TLS verification to confirm the problem is TLS-related — **remove after testing** and fix the URI/Atlas settings.
+6. **Optional:** `MONGO_USE_CERTIFI=1` forces the `certifi` CA bundle (some hosts need it; others work better with the system store — the app defaults to system store).
+
 ## Notes
 
 - Keep local `.env` files for development only.
