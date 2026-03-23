@@ -4,6 +4,7 @@ from fastapi.responses import FileResponse, RedirectResponse, JSONResponse
 from dotenv import load_dotenv
 from starlette.middleware.cors import CORSMiddleware
 from motor.motor_asyncio import AsyncIOMotorClient
+import certifi
 import os
 import logging
 import random
@@ -30,6 +31,7 @@ client = AsyncIOMotorClient(
     serverSelectionTimeoutMS=20000,
     connectTimeoutMS=15000,
     socketTimeoutMS=60000,
+    tlsCAFile=certifi.where(),
 )
 db = client[os.environ['DB_NAME']]
 
