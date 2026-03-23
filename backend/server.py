@@ -1,6 +1,6 @@
 from fastapi import FastAPI, APIRouter, HTTPException, Depends, Request
 from fastapi.staticfiles import StaticFiles
-from fastapi.responses import FileResponse
+from fastapi.responses import FileResponse, RedirectResponse
 from dotenv import load_dotenv
 from starlette.middleware.cors import CORSMiddleware
 from motor.motor_asyncio import AsyncIOMotorClient
@@ -1575,6 +1575,13 @@ async def api_root():
 # Mounted app owns all /api/* routes (Swagger at /api/docs)
 api_app = FastAPI(title="RentAll API")
 api_app.include_router(api_router)
+
+# Without this, GET /api (no trailing slash) misses the mount and the SPA catch-all
+# serves index.html — React Router then shows "Not found" for route /api.
+@app.get("/api", include_in_schema=False)
+async def redirect_api_root_slash():
+    return RedirectResponse(url="/api/", status_code=307)
+
 app.mount("/api", api_app)
 
 app.add_middleware(
