@@ -23,8 +23,12 @@ export function formatApiError(error, fallback = 'Something went wrong') {
   }
 
   const status = error.response?.status;
-  if (error.message === 'Network Error' || error.code === 'ERR_NETWORK') {
-    return "Can't reach the server. Check your connection or try again in a moment.";
+  if (
+    error.message === 'Network Error' ||
+    error.code === 'ERR_NETWORK' ||
+    error.code === 'ECONNABORTED'
+  ) {
+    return "Can't reach the server. If you're on free hosting, wait ~1 minute and try again (the app may be waking up), or check your connection.";
   }
   if (status === 503 || status === 502 || status === 504) {
     return 'Server is temporarily unavailable. Please try again shortly.';

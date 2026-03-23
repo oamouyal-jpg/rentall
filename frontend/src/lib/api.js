@@ -14,9 +14,10 @@ export function getBackendUrl() {
 
 const API = `${getBackendUrl()}/api`;
 
-// Create axios instance
+// Create axios instance (long timeout: Render free tier cold starts + Mongo can take 30–90s)
 const api = axios.create({
   baseURL: API,
+  timeout: 120000,
   headers: {
     'Content-Type': 'application/json',
   },
@@ -31,14 +32,30 @@ api.interceptors.request.use((config) => {
   return config;
 });
 
-// Handle auth errors
+// Handle auth errors + one retry on transient network / cold start failures
 api.interceptors.response.use(
   (response) => response,
-  (error) => {
+  async (error) => {
     if (error.response?.status === 401) {
       localStorage.removeItem('token');
       localStorage.removeItem('user');
     }
+
+    const cfg = error.config;
+    const isNetworkish =
+      !error.response &&
+      cfg &&
+      !cfg._networkRetry &&
+      (error.code === 'ERR_NETWORK' ||
+        error.code === 'ECONNABORTED' ||
+        error.message === 'Network Error');
+
+    if (isNetworkish) {
+      cfg._networkRetry = true;
+      await new Promise((r) => setTimeout(r, 2500));
+      return api(cfg);
+    }
+
     return Promise.reject(error);
   }
 );
