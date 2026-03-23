@@ -2,11 +2,11 @@ services:
   - type: web
     name: rentall
     runtime: python
+    # IMPORTANT: keep copy step in the same shell line as `cd frontend` — after `cd frontend`,
+    # the working directory is `frontend/`, so paths must be `build` and `../backend/static`.
     buildCommand: |
       pip install -r requirements.txt
-      pip install emergentintegrations --extra-index-url https://d33sy5i8bnduwe.cloudfront.net/simple/
-      cd frontend && npm install && npm run build
-      cp -r frontend/build backend/static
+      cd frontend && npm install --legacy-peer-deps && npm run build && cp -r build ../backend/static
     startCommand: cd backend && uvicorn server:app --host 0.0.0.0 --port $PORT
     envVars:
       - key: PYTHON_VERSION
