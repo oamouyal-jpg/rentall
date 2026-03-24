@@ -41,12 +41,19 @@ export function InstallPrompt() {
 
     window.addEventListener('beforeinstallprompt', handler);
 
+    // Allow other UI (e.g. navbar button) to open this prompt.
+    const openHandler = () => setShowPrompt(true);
+    window.addEventListener('rentall:open-install-prompt', openHandler);
+
     // For iOS - show prompt if mobile and not installed
     if (iOS && !standalone && !dismissed) {
       setTimeout(() => setShowPrompt(true), 3000);
     }
 
-    return () => window.removeEventListener('beforeinstallprompt', handler);
+    return () => {
+      window.removeEventListener('beforeinstallprompt', handler);
+      window.removeEventListener('rentall:open-install-prompt', openHandler);
+    };
   }, []);
 
   const handleInstall = async () => {

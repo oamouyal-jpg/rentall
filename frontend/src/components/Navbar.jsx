@@ -13,7 +13,7 @@ import {
 } from './ui/dropdown-menu';
 import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar';
 import { Input } from './ui/input';
-import { Search, Menu, Plus, MessageSquare, LayoutDashboard, LogOut, User, Share2 } from 'lucide-react';
+import { Search, Menu, Plus, MessageSquare, LayoutDashboard, LogOut, User, Share2, Download } from 'lucide-react';
 import { getInitials } from '../lib/utils';
 import { LanguageSelector } from './LanguageSelector';
 
@@ -63,6 +63,10 @@ export default function Navbar() {
     }
   };
 
+  const handleInstallApp = () => {
+    window.dispatchEvent(new Event('rentall:open-install-prompt'));
+  };
+
   return (
     <header className="sticky top-0 z-50 glass-header" data-testid="navbar">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -101,6 +105,17 @@ export default function Navbar() {
 
           {/* Right Side */}
           <div className="flex items-center gap-2">
+            <Button
+              variant="ghost"
+              onClick={handleInstallApp}
+              className="text-stone-700 hover:text-stone-900 hover:bg-stone-100 rounded-full px-3"
+              data-testid="install-app-btn"
+              aria-label="Get the app"
+              title="Get the app"
+            >
+              <Download className="h-4 w-4 mr-1.5" />
+              <span className="hidden sm:inline">Get App</span>
+            </Button>
             <Button
               variant="ghost"
               size="icon"
