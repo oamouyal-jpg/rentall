@@ -6,6 +6,7 @@ from starlette.middleware.cors import CORSMiddleware
 from motor.motor_asyncio import AsyncIOMotorClient
 import certifi
 import os
+import ssl
 import logging
 import random
 from pathlib import Path
@@ -48,6 +49,13 @@ def _normalize_mongo_url(url: str) -> str:
         return url
 
 
+def _env_truthy(name: str) -> bool:
+    v = os.environ.get(name)
+    if v is None:
+        return False
+    return v.strip().lower() in ("1", "true", "yes", "on")
+
+
 def _mongo_client_kwargs():
     """Atlas needs TLS; on Ubuntu/Render the system trust store usually works better than forcing certifi."""
     kw = dict(
@@ -59,14 +67,25 @@ def _mongo_client_kwargs():
     ca_file = os.environ.get("MONGO_TLS_CA_FILE")
     if ca_file and os.path.isfile(ca_file):
         kw["tlsCAFile"] = ca_file
-    elif os.environ.get("MONGO_USE_CERTIFI") == "1":
+    elif _env_truthy("MONGO_USE_CERTIFI"):
         kw["tlsCAFile"] = certifi.where()
     # DEBUG ONLY — if Atlas still fails, set MONGO_TLS_INSECURE=1 temporarily to confirm TLS is the issue
-    if os.environ.get("MONGO_TLS_INSECURE") == "1":
+    if _env_truthy("MONGO_TLS_INSECURE"):
         logging.warning(
             "MONGO_TLS_INSECURE=1 — TLS certificate verification is OFF. Use only to debug, then fix CA/URI."
         )
         kw["tlsAllowInvalidCertificates"] = True
+        kw["tlsAllowInvalidHostnames"] = True
+    # OpenSSL / Atlas: some Render/Python builds fail TLS1.3 handshake — force TLS 1.2
+    if _env_truthy("MONGO_TLS_FORCE_12"):
+        ctx = ssl.create_default_context()
+        if hasattr(ssl, "TLSVersion"):
+            ctx.minimum_version = ssl.TLSVersion.TLSv1_2
+            ctx.maximum_version = ssl.TLSVersion.TLSv1_2
+        if _env_truthy("MONGO_TLS_INSECURE"):
+            ctx.check_hostname = False
+            ctx.verify_mode = ssl.CERT_NONE
+        kw["tlsContext"] = ctx
     return kw
 
 
@@ -77,8 +96,30 @@ if not mongo_url.startswith("mongodb+srv://") and "mongodb.net" in mongo_url:
         "Direct mongodb:// host lists often cause TLS errors on Python."
     )
 
-client = AsyncIOMotorClient(mongo_url, **_mongo_client_kwargs())
+_mongo_kw = _mongo_client_kwargs()
+client = AsyncIOMotorClient(mongo_url, **_mongo_kw)
 db = client[os.environ["DB_NAME"]]
+
+
+def _mongo_health_diagnostics() -> dict:
+    """Safe fields only — no secrets."""
+    try:
+        p = urlparse(mongo_url)
+        host = p.hostname or ""
+        if len(host) > 48:
+            host = host[:45] + "..."
+        return {
+            "mongo_scheme": p.scheme,
+            "mongo_host": host,
+            "mongo_tls_insecure_env": os.environ.get("MONGO_TLS_INSECURE"),
+            "mongo_tls_force_12_env": os.environ.get("MONGO_TLS_FORCE_12"),
+            "mongo_use_certifi_env": os.environ.get("MONGO_USE_CERTIFI"),
+            "tls_allow_invalid_certs": bool(_mongo_kw.get("tlsAllowInvalidCertificates")),
+            "tls_custom_context": bool(_mongo_kw.get("tlsContext")),
+            "openssl": getattr(ssl, "OPENSSL_VERSION", "unknown"),
+        }
+    except Exception:
+        return {"diag_error": "could not build diagnostics"}
 
 # JWT Config - MUST be set in environment
 JWT_SECRET = os.environ.get('JWT_SECRET')
@@ -1622,9 +1663,10 @@ async def get_categories():
 @api_router.get("/health")
 async def health_check():
     """Use this in Render / browser to verify API + MongoDB."""
+    diag = _mongo_health_diagnostics()
     try:
         await db.command("ping")
-        return {"status": "ok", "mongo": "connected"}
+        return {"status": "ok", "mongo": "connected", **diag}
     except Exception as e:
         logging.exception("MongoDB health ping failed")
         return JSONResponse(
@@ -1633,6 +1675,7 @@ async def health_check():
                 "status": "error",
                 "mongo": "disconnected",
                 "detail": str(e)[:400],
+                **diag,
             },
         )
 
