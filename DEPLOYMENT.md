@@ -101,6 +101,8 @@ If `/api/health` returns `mongo: disconnected` with `TLSV1_ALERT_INTERNAL_ERROR`
 6. **Optional:** `MONGO_USE_CERTIFI=1` forces the `certifi` CA bundle (some hosts need it; others work better with the system store — the app defaults to system store).
 7. **If TLS still fails on Render:** add **`MONGO_TLS_FORCE_12=1`** (forces TLS 1.2 for the driver). You can combine with **`MONGO_TLS_INSECURE=1`** only while testing.
 8. **Atlas → Network Access:** allow **`0.0.0.0/0`** and also **`::/0`** (IPv6). Some cloud egress uses IPv6; without `::/0` you can get odd TLS/network failures.
+9. **Connection string timeouts:** don’t paste extra `socketTimeoutMS=15000` etc. from old snippets — the app strips those now, but a clean Atlas “Drivers” URI is best.
+10. **OCSP:** the backend sets **`tlsDisableOCSPEndpointCheck`** for `*.mongodb.net` by default (common fix for TLS handshake failures from cloud egress). Set **`MONGO_TLS_STRICT_OCSP=1`** only if you must enforce OCSP.
 
 After deploy, open **`/api/health`**: it returns safe diagnostics (scheme, host, whether insecure/force-12 flags are active). If `tls_allow_invalid_certs` is **false** but you set `MONGO_TLS_INSECURE=1`, the variable name is wrong or the latest code isn’t deployed.
 

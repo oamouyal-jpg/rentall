@@ -28,17 +28,27 @@ STATIC_DIR = ROOT_DIR / "static"
 
 # MongoDB connection — bounded timeouts; TLS tuned for Atlas on Render/Linux
 def _normalize_mongo_url(url: str) -> str:
-    """Strip query flags that break Atlas TLS (e.g. tls=false)."""
+    """Strip query flags that break Atlas TLS (e.g. tls=false) and timeout params that override kwargs."""
     try:
         p = urlparse(url)
         if not p.scheme.startswith("mongodb"):
             return url
         pairs = parse_qsl(p.query, keep_blank_values=True)
         out = []
-        drop = {"tls", "ssl", "tlsallowinvalidcertificates", "tlsinsecure"}
+        # tls=false etc.
+        drop_false_tls = {"tls", "ssl", "tlsallowinvalidcertificates", "tlsinsecure"}
+        # These in the URI override MongoClient() kwargs and often leave socketTimeoutMS=15000 etc.
+        drop_timeout = {
+            "sockettimeoutms",
+            "connecttimeoutms",
+            "serverselectiontimeoutms",
+            "waitqueuetimeoutms",
+        }
         for k, v in pairs:
             lk = k.lower()
-            if lk in drop and v.lower() in ("false", "0", "no"):
+            if lk in drop_false_tls and v.lower() in ("false", "0", "no"):
+                continue
+            if lk in drop_timeout:
                 continue
             out.append((k, v))
         new_query = urlencode(out)
@@ -56,11 +66,11 @@ def _env_truthy(name: str) -> bool:
     return v.strip().lower() in ("1", "true", "yes", "on")
 
 
-def _mongo_client_kwargs():
+def _mongo_client_kwargs(mongo_url: str):
     """Atlas needs TLS; on Ubuntu/Render the system trust store usually works better than forcing certifi."""
     kw = dict(
         serverSelectionTimeoutMS=20000,
-        connectTimeoutMS=15000,
+        connectTimeoutMS=20000,
         socketTimeoutMS=60000,
     )
     # Optional: path to PEM bundle (advanced)
@@ -76,6 +86,10 @@ def _mongo_client_kwargs():
         )
         kw["tlsAllowInvalidCertificates"] = True
         kw["tlsAllowInvalidHostnames"] = True
+    # OCSP stapling checks can break TLS to Atlas on some cloud egress paths (Render/AWS).
+    # Default ON for *.mongodb.net. Set MONGO_TLS_STRICT_OCSP=1 to keep OCSP enabled.
+    if "mongodb.net" in mongo_url and not _env_truthy("MONGO_TLS_STRICT_OCSP"):
+        kw["tlsDisableOCSPEndpointCheck"] = True
     # OpenSSL / Atlas: some Render/Python builds fail TLS1.3 handshake — force TLS 1.2
     if _env_truthy("MONGO_TLS_FORCE_12"):
         ctx = ssl.create_default_context()
@@ -96,7 +110,7 @@ if not mongo_url.startswith("mongodb+srv://") and "mongodb.net" in mongo_url:
         "Direct mongodb:// host lists often cause TLS errors on Python."
     )
 
-_mongo_kw = _mongo_client_kwargs()
+_mongo_kw = _mongo_client_kwargs(mongo_url)
 client = AsyncIOMotorClient(mongo_url, **_mongo_kw)
 db = client[os.environ["DB_NAME"]]
 
@@ -116,6 +130,7 @@ def _mongo_health_diagnostics() -> dict:
             "mongo_use_certifi_env": os.environ.get("MONGO_USE_CERTIFI"),
             "tls_allow_invalid_certs": bool(_mongo_kw.get("tlsAllowInvalidCertificates")),
             "tls_custom_context": bool(_mongo_kw.get("tlsContext")),
+            "tls_disable_ocsp": bool(_mongo_kw.get("tlsDisableOCSPEndpointCheck")),
             "openssl": getattr(ssl, "OPENSSL_VERSION", "unknown"),
         }
     except Exception:
