@@ -140,7 +140,12 @@ if not mongo_url.startswith("mongodb+srv://") and "mongodb.net" in mongo_url:
 
 _mongo_kw = _mongo_client_kwargs(mongo_url)
 client = AsyncIOMotorClient(mongo_url, **_mongo_kw)
-db = client[os.environ["DB_NAME"]]
+_db_name = (
+    os.environ.get("DB_NAME")
+    or (urlparse(mongo_url).path or "").lstrip("/")
+    or "rentall"
+)
+db = client[_db_name]
 
 
 def _mongo_health_diagnostics() -> dict:
@@ -166,17 +171,19 @@ def _mongo_health_diagnostics() -> dict:
     except Exception:
         return {"diag_error": "could not build diagnostics"}
 
-# JWT Config - MUST be set in environment
+# JWT Config
 JWT_SECRET = os.environ.get('JWT_SECRET')
 if not JWT_SECRET:
-    raise ValueError("JWT_SECRET environment variable is required")
+    logging.warning("JWT_SECRET is missing; using temporary fallback secret. Set JWT_SECRET in Render.")
+    JWT_SECRET = "TEMP_INSECURE_JWT_SECRET_CHANGE_ME"
 JWT_ALGORITHM = "HS256"
 JWT_EXPIRATION_HOURS = 24
 
-# Stripe Config - MUST be set in environment
+# Stripe Config
 STRIPE_API_KEY = os.environ.get('STRIPE_API_KEY')
 if not STRIPE_API_KEY:
-    raise ValueError("STRIPE_API_KEY environment variable is required")
+    logging.warning("STRIPE_API_KEY is missing; Stripe routes will fail until set in Render.")
+    STRIPE_API_KEY = ""
 PLATFORM_FEE_PERCENT = 5.0
 stripe.api_key = STRIPE_API_KEY
 
