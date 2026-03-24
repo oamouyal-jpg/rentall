@@ -114,27 +114,8 @@ def _mongo_client_kwargs(mongo_url: str):
         )
         kw["tlsAllowInvalidCertificates"] = True
         kw["tlsAllowInvalidHostnames"] = True
-    # OCSP is applied via URI query (see mongo_url below) — Motor/PyMongo versions differ on kwarg support.
-    # OpenSSL / Atlas: Render + OpenSSL 3 often needs TLS 1.2 for stable handshakes.
-    # Default ON for *.mongodb.net so MONGO_TLS_FORCE_12 env is not required. Opt out: MONGO_TLS_NO_FORCE_12=1.
-    force_tls12 = _env_truthy("MONGO_TLS_FORCE_12") or (
-        "mongodb.net" in mongo_url and not _env_truthy("MONGO_TLS_NO_FORCE_12")
-    )
-    if force_tls12:
-        ctx = ssl.create_default_context()
-        if hasattr(ssl, "TLSVersion"):
-            ctx.minimum_version = ssl.TLSVersion.TLSv1_2
-            ctx.maximum_version = ssl.TLSVersion.TLSv1_2
-        if use_certifi:
-            ctx.load_verify_locations(cafile=certifi.where())
-        elif ca_file and os.path.isfile(ca_file):
-            ctx.load_verify_locations(cafile=ca_file)
-        if insecure:
-            ctx.check_hostname = False
-            ctx.verify_mode = ssl.CERT_NONE
-        kw["tlsContext"] = ctx
-        # Avoid PyMongo applying a separate CA file alongside tlsContext
-        kw.pop("tlsCAFile", None)
+    # NOTE: PyMongo 4.9 MongoClient does NOT accept tlsContext/ssl_context kwargs (ConfigurationError).
+    # TLS version cannot be forced here; use tlsCAFile + URI options (OCSP) + Atlas network/user instead.
     return kw
 
 
@@ -178,15 +159,8 @@ def _mongo_health_diagnostics() -> dict:
             "mongo_host": host,
             "mongo_tls_insecure_env": os.environ.get("MONGO_TLS_INSECURE"),
             "mongo_tls_force_12_env": os.environ.get("MONGO_TLS_FORCE_12"),
-            "mongo_tls_no_force_12_env": os.environ.get("MONGO_TLS_NO_FORCE_12"),
             "mongo_use_certifi_env": os.environ.get("MONGO_USE_CERTIFI"),
             "tls_allow_invalid_certs": bool(_mongo_kw.get("tlsAllowInvalidCertificates")),
-            "tls_custom_context": bool(_mongo_kw.get("tlsContext")),
-            "atlas_tls12_auto": (
-                "mongodb.net" in mongo_url
-                and not _env_truthy("MONGO_TLS_NO_FORCE_12")
-                and not _env_truthy("MONGO_TLS_FORCE_12")
-            ),
             "tls_disable_ocsp_uri": _query_flag_true(
                 mongo_url, "tlsDisableOCSPEndpointCheck"
             ),
