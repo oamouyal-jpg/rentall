@@ -17,15 +17,37 @@ export function UpdatePrompt() {
     return () => window.removeEventListener('rentall:update-available', onUpdate);
   }, []);
 
-  const applyUpdate = () => {
-    if (!registration?.waiting) return;
+  const applyUpdate = async () => {
     setUpdating(true);
-    registration.waiting.postMessage({ type: 'SKIP_WAITING' });
-    navigator.serviceWorker.addEventListener(
-      'controllerchange',
-      () => window.location.reload(),
-      { once: true }
-    );
+    try {
+      // Refresh SW state in case waiting worker changed.
+      if (registration) {
+        await registration.update();
+      }
+
+      const reg = registration || (await navigator.serviceWorker.getRegistration());
+      const waiting = reg?.waiting;
+
+      // Always reload when controller changes.
+      navigator.serviceWorker.addEventListener(
+        'controllerchange',
+        () => window.location.reload(),
+        { once: true }
+      );
+
+      if (waiting) {
+        waiting.postMessage({ type: 'SKIP_WAITING' });
+        // Fallback if controllerchange doesn't fire in some browsers.
+        setTimeout(() => window.location.reload(), 2000);
+        return;
+      }
+
+      // No waiting worker: perform normal reload as fallback.
+      window.location.reload();
+    } catch (err) {
+      // Last resort fallback keeps UX unblocked.
+      window.location.reload();
+    }
   };
 
   if (!show) return null;
