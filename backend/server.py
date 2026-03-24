@@ -99,30 +99,42 @@ def _mongo_client_kwargs(mongo_url: str):
         connectTimeoutMS=20000,
         socketTimeoutMS=60000,
     )
+    use_certifi = _env_truthy("MONGO_USE_CERTIFI")
+    insecure = _env_truthy("MONGO_TLS_INSECURE")
     # Optional: path to PEM bundle (advanced)
     ca_file = os.environ.get("MONGO_TLS_CA_FILE")
     if ca_file and os.path.isfile(ca_file):
         kw["tlsCAFile"] = ca_file
-    elif _env_truthy("MONGO_USE_CERTIFI"):
+    elif use_certifi:
         kw["tlsCAFile"] = certifi.where()
     # DEBUG ONLY — if Atlas still fails, set MONGO_TLS_INSECURE=1 temporarily to confirm TLS is the issue
-    if _env_truthy("MONGO_TLS_INSECURE"):
+    if insecure:
         logging.warning(
             "MONGO_TLS_INSECURE=1 — TLS certificate verification is OFF. Use only to debug, then fix CA/URI."
         )
         kw["tlsAllowInvalidCertificates"] = True
         kw["tlsAllowInvalidHostnames"] = True
     # OCSP is applied via URI query (see mongo_url below) — Motor/PyMongo versions differ on kwarg support.
-    # OpenSSL / Atlas: some Render/Python builds fail TLS1.3 handshake — force TLS 1.2
-    if _env_truthy("MONGO_TLS_FORCE_12"):
+    # OpenSSL / Atlas: Render + OpenSSL 3 often needs TLS 1.2 for stable handshakes.
+    # Default ON for *.mongodb.net so MONGO_TLS_FORCE_12 env is not required. Opt out: MONGO_TLS_NO_FORCE_12=1.
+    force_tls12 = _env_truthy("MONGO_TLS_FORCE_12") or (
+        "mongodb.net" in mongo_url and not _env_truthy("MONGO_TLS_NO_FORCE_12")
+    )
+    if force_tls12:
         ctx = ssl.create_default_context()
         if hasattr(ssl, "TLSVersion"):
             ctx.minimum_version = ssl.TLSVersion.TLSv1_2
             ctx.maximum_version = ssl.TLSVersion.TLSv1_2
-        if _env_truthy("MONGO_TLS_INSECURE"):
+        if use_certifi:
+            ctx.load_verify_locations(cafile=certifi.where())
+        elif ca_file and os.path.isfile(ca_file):
+            ctx.load_verify_locations(cafile=ca_file)
+        if insecure:
             ctx.check_hostname = False
             ctx.verify_mode = ssl.CERT_NONE
         kw["tlsContext"] = ctx
+        # Avoid PyMongo applying a separate CA file alongside tlsContext
+        kw.pop("tlsCAFile", None)
     return kw
 
 
@@ -166,9 +178,15 @@ def _mongo_health_diagnostics() -> dict:
             "mongo_host": host,
             "mongo_tls_insecure_env": os.environ.get("MONGO_TLS_INSECURE"),
             "mongo_tls_force_12_env": os.environ.get("MONGO_TLS_FORCE_12"),
+            "mongo_tls_no_force_12_env": os.environ.get("MONGO_TLS_NO_FORCE_12"),
             "mongo_use_certifi_env": os.environ.get("MONGO_USE_CERTIFI"),
             "tls_allow_invalid_certs": bool(_mongo_kw.get("tlsAllowInvalidCertificates")),
             "tls_custom_context": bool(_mongo_kw.get("tlsContext")),
+            "atlas_tls12_auto": (
+                "mongodb.net" in mongo_url
+                and not _env_truthy("MONGO_TLS_NO_FORCE_12")
+                and not _env_truthy("MONGO_TLS_FORCE_12")
+            ),
             "tls_disable_ocsp_uri": _query_flag_true(
                 mongo_url, "tlsDisableOCSPEndpointCheck"
             ),
