@@ -59,6 +59,32 @@ def _normalize_mongo_url(url: str) -> str:
         return url
 
 
+def _ensure_query_param(url: str, key: str, value: str) -> str:
+    """Append query param if missing (case-insensitive key)."""
+    try:
+        p = urlparse(url)
+        pairs = parse_qsl(p.query, keep_blank_values=True)
+        keys_lower = {k.lower() for k, _ in pairs}
+        if key.lower() not in keys_lower:
+            pairs.append((key, value))
+        new_query = urlencode(pairs)
+        return urlunparse(
+            (p.scheme, p.netloc, p.path, p.params, new_query, p.fragment)
+        )
+    except Exception:
+        return url
+
+
+def _query_flag_true(url: str, key: str) -> bool:
+    try:
+        for k, v in parse_qsl(urlparse(url).query):
+            if k.lower() == key.lower() and v.lower() in ("true", "1", "yes"):
+                return True
+    except Exception:
+        pass
+    return False
+
+
 def _env_truthy(name: str) -> bool:
     v = os.environ.get(name)
     if v is None:
@@ -86,10 +112,7 @@ def _mongo_client_kwargs(mongo_url: str):
         )
         kw["tlsAllowInvalidCertificates"] = True
         kw["tlsAllowInvalidHostnames"] = True
-    # OCSP stapling checks can break TLS to Atlas on some cloud egress paths (Render/AWS).
-    # Default ON for *.mongodb.net. Set MONGO_TLS_STRICT_OCSP=1 to keep OCSP enabled.
-    if "mongodb.net" in mongo_url and not _env_truthy("MONGO_TLS_STRICT_OCSP"):
-        kw["tlsDisableOCSPEndpointCheck"] = True
+    # OCSP is applied via URI query (see mongo_url below) — Motor/PyMongo versions differ on kwarg support.
     # OpenSSL / Atlas: some Render/Python builds fail TLS1.3 handshake — force TLS 1.2
     if _env_truthy("MONGO_TLS_FORCE_12"):
         ctx = ssl.create_default_context()
@@ -104,6 +127,11 @@ def _mongo_client_kwargs(mongo_url: str):
 
 
 mongo_url = _normalize_mongo_url(os.environ["MONGO_URL"].strip())
+# OCSP stapling can break TLS to Atlas from some cloud egress; use URI option (widely supported).
+if "mongodb.net" in mongo_url and not _env_truthy("MONGO_TLS_STRICT_OCSP"):
+    mongo_url = _ensure_query_param(
+        mongo_url, "tlsDisableOCSPEndpointCheck", "true"
+    )
 if not mongo_url.startswith("mongodb+srv://") and "mongodb.net" in mongo_url:
     logging.warning(
         "MONGO_URL should use mongodb+srv:// for Atlas (Drivers connection string). "
@@ -130,7 +158,9 @@ def _mongo_health_diagnostics() -> dict:
             "mongo_use_certifi_env": os.environ.get("MONGO_USE_CERTIFI"),
             "tls_allow_invalid_certs": bool(_mongo_kw.get("tlsAllowInvalidCertificates")),
             "tls_custom_context": bool(_mongo_kw.get("tlsContext")),
-            "tls_disable_ocsp": bool(_mongo_kw.get("tlsDisableOCSPEndpointCheck")),
+            "tls_disable_ocsp_uri": _query_flag_true(
+                mongo_url, "tlsDisableOCSPEndpointCheck"
+            ),
             "openssl": getattr(ssl, "OPENSSL_VERSION", "unknown"),
         }
     except Exception:
