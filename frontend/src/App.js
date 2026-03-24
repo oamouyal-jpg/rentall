@@ -67,6 +67,7 @@ import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
 import { InstallPrompt } from "./components/InstallPrompt";
 import { MobileNavbar } from "./components/MobileNavbar";
+import { UpdatePrompt } from "./components/UpdatePrompt";
 
 function App() {
   return (
@@ -99,6 +100,7 @@ function App() {
           <Footer />
           <MobileNavbar />
           <InstallPrompt />
+          <UpdatePrompt />
           <Toaster 
             position="top-right" 
             toastOptions={{
