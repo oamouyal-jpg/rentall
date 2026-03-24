@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
+import { toast } from 'sonner';
 import { useAuth } from '../context/AuthContext';
 import { Button } from './ui/button';
 import {
@@ -12,7 +13,7 @@ import {
 } from './ui/dropdown-menu';
 import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar';
 import { Input } from './ui/input';
-import { Search, Menu, Plus, MessageSquare, LayoutDashboard, LogOut, User } from 'lucide-react';
+import { Search, Menu, Plus, MessageSquare, LayoutDashboard, LogOut, User, Share2 } from 'lucide-react';
 import { getInitials } from '../lib/utils';
 import { LanguageSelector } from './LanguageSelector';
 
@@ -32,6 +33,34 @@ export default function Navbar() {
   const handleLogout = () => {
     logout();
     navigate('/');
+  };
+
+  const handleShareApp = async () => {
+    const shareData = {
+      title: 'RentAll',
+      text: 'Check out RentAll for peer-to-peer rentals.',
+      url: window.location.origin,
+    };
+
+    try {
+      if (navigator.share) {
+        await navigator.share(shareData);
+        return;
+      }
+
+      if (navigator.clipboard?.writeText) {
+        await navigator.clipboard.writeText(shareData.url);
+        toast.success('Link copied to clipboard');
+        return;
+      }
+
+      toast.error('Share is not supported on this device');
+    } catch (error) {
+      // Ignore user-cancelled shares; show generic error for real failures.
+      if (error?.name !== 'AbortError') {
+        toast.error('Unable to share right now');
+      }
+    }
   };
 
   return (
@@ -72,6 +101,17 @@ export default function Navbar() {
 
           {/* Right Side */}
           <div className="flex items-center gap-2">
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={handleShareApp}
+              className="text-stone-700 hover:text-stone-900 hover:bg-stone-100"
+              data-testid="share-app-btn"
+              aria-label="Share RentAll"
+              title="Share RentAll"
+            >
+              <Share2 className="h-5 w-5" />
+            </Button>
             <LanguageSelector variant="compact" />
             
             {user ? (
