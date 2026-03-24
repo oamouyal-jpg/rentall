@@ -128,7 +128,13 @@ def _mongo_client_kwargs(mongo_url: str):
 
 mongo_url = _normalize_mongo_url(os.environ["MONGO_URL"].strip())
 # OCSP stapling can break TLS to Atlas from some cloud egress; use URI option (widely supported).
-if "mongodb.net" in mongo_url and not _env_truthy("MONGO_TLS_STRICT_OCSP"):
+# But it is incompatible with tlsAllowInvalidCertificates=true (PyMongo InvalidURI),
+# so only apply this workaround when not running insecure TLS mode.
+if (
+    "mongodb.net" in mongo_url
+    and not _env_truthy("MONGO_TLS_STRICT_OCSP")
+    and not _env_truthy("MONGO_TLS_INSECURE")
+):
     mongo_url = _ensure_query_param(
         mongo_url, "tlsDisableOCSPEndpointCheck", "true"
     )
