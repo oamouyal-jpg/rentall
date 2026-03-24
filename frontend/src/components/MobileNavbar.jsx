@@ -1,6 +1,5 @@
 import { useLocation, useNavigate } from 'react-router-dom';
-import { Home, Search, PlusCircle, MessageSquare, User, Share2 } from 'lucide-react';
-import { toast } from 'sonner';
+import { CalendarDays, Calendar, MessageSquare, LayoutDashboard, User } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 
 export function MobileNavbar() {
@@ -11,40 +10,14 @@ export function MobileNavbar() {
   const isActive = (path) => location.pathname === path;
 
   const navItems = [
-    { path: '/', icon: Home, label: 'Home' },
-    { path: '/search', icon: Search, label: 'Search' },
-    { action: 'share', icon: Share2, label: 'Share' },
-    { path: '/create-listing', icon: PlusCircle, label: 'List', requiresAuth: true },
-    { path: '/messages', icon: MessageSquare, label: 'Messages', requiresAuth: true },
-    { path: user ? '/dashboard' : '/login', icon: User, label: user ? 'Profile' : 'Login' },
+    { path: user ? '/today' : '/login', icon: CalendarDays, label: 'Today', requiresAuth: true },
+    { path: user ? '/dashboard?tab=rentals' : '/login', icon: Calendar, label: 'Calendar', requiresAuth: true },
+    { path: user ? '/messages' : '/login', icon: MessageSquare, label: 'Inbox', requiresAuth: true },
+    { path: user ? '/dashboard?tab=listings' : '/login', icon: LayoutDashboard, label: 'Listings', requiresAuth: true },
+    { path: user ? '/settings' : '/login', icon: User, label: user ? 'Profile' : 'Login' },
   ];
 
-  const handleNav = async (item) => {
-    if (item.action === 'share') {
-      const shareData = {
-        title: 'RentAll',
-        text: 'Check out RentAll for peer-to-peer rentals.',
-        url: window.location.origin,
-      };
-      try {
-        if (navigator.share) {
-          await navigator.share(shareData);
-          return;
-        }
-        if (navigator.clipboard?.writeText) {
-          await navigator.clipboard.writeText(shareData.url);
-          toast.success('Link copied to clipboard');
-          return;
-        }
-        toast.error('Share is not supported on this device');
-      } catch (error) {
-        if (error?.name !== 'AbortError') {
-          toast.error('Unable to share right now');
-        }
-      }
-      return;
-    }
-
+  const handleNav = (item) => {
     if (item.requiresAuth && !user) {
       navigate('/login');
     } else {
@@ -61,7 +34,7 @@ export function MobileNavbar() {
           
           return (
             <button
-              key={item.path}
+              key={item.label}
               onClick={() => handleNav(item)}
               className={`flex flex-col items-center justify-center w-full h-full transition-colors ${
                 active 

@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate, Link, useSearchParams } from 'react-router-dom';
 import { toast } from 'sonner';
 import { useAuth } from '../context/AuthContext';
 import { listingsAPI, bookingsAPI } from '../lib/api';
@@ -27,12 +27,13 @@ import {
 export default function DashboardPage() {
   const { user, loading: authLoading } = useAuth();
   const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
 
   const [myListings, setMyListings] = useState([]);
   const [myBookings, setMyBookings] = useState([]);
   const [bookingRequests, setBookingRequests] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState('listings');
+  const [activeTab, setActiveTab] = useState(searchParams.get('tab') || 'listings');
 
   useEffect(() => {
     if (!authLoading && !user) {
@@ -61,6 +62,13 @@ export default function DashboardPage() {
     };
     fetchData();
   }, [user]);
+
+  useEffect(() => {
+    const incoming = searchParams.get('tab');
+    if (incoming && ['listings', 'rentals', 'requests'].includes(incoming)) {
+      setActiveTab(incoming);
+    }
+  }, [searchParams]);
 
   const handleBookingAction = async (bookingId, status) => {
     try {
@@ -247,7 +255,14 @@ export default function DashboardPage() {
         </div>
 
         {/* Tabs */}
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
+        <Tabs
+          value={activeTab}
+          onValueChange={(value) => {
+            setActiveTab(value);
+            setSearchParams({ tab: value });
+          }}
+          className="space-y-6"
+        >
           <TabsList className="bg-stone-100 rounded-full p-1">
             <TabsTrigger value="listings" className="rounded-full" data-testid="tab-listings">
               My Listings
