@@ -134,6 +134,7 @@ export default function ListingPage() {
       };
       
       const bookingRes = await bookingsAPI.create(bookingData);
+      toast.success('Booking request created. Redirecting to secure payment...');
 
       // Create checkout session
       const checkoutRes = await paymentsAPI.createCheckout({

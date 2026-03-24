@@ -136,6 +136,7 @@ export const payoutsAPI = {
 
 // Phone Verification API
 export const verificationAPI = {
+  getPhoneStatus: () => api.get('/auth/phone/status'),
   sendPhoneCode: (phone_number) => api.post('/auth/phone/send-code', { phone_number }),
   verifyPhoneCode: (phone_number, code) => api.post('/auth/phone/verify', { phone_number, code }),
 };

@@ -207,6 +207,7 @@ class UserBase(BaseModel):
     
 class UserCreate(UserBase):
     password: str
+    phone_number: Optional[str] = None
     
 class UserResponse(UserBase):
     model_config = ConfigDict(extra="ignore")
@@ -318,6 +319,7 @@ class BookingResponse(BookingBase):
     receipt_confirmed: Optional[bool] = False
     receipt_confirmed_at: Optional[str] = None
     auto_release_date: Optional[str] = None
+    counterparty_phone: Optional[str] = None
 
 class ReviewBase(BaseModel):
     listing_id: str
@@ -396,6 +398,27 @@ def create_token(user_id: str) -> str:
     }
     return jwt.encode(payload, JWT_SECRET, algorithm=JWT_ALGORITHM)
 
+
+async def create_system_message(
+    *,
+    recipient_id: str,
+    content: str,
+    listing_id: Optional[str] = None
+):
+    """Create an in-app notification message from system."""
+    msg_doc = {
+        "id": str(uuid.uuid4()),
+        "sender_id": "system",
+        "sender_name": "RentAll",
+        "sender_avatar": None,
+        "recipient_id": recipient_id,
+        "content": content,
+        "listing_id": listing_id,
+        "created_at": datetime.now(timezone.utc).isoformat(),
+        "is_read": False,
+    }
+    await db.messages.insert_one(msg_doc)
+
 async def get_current_user(request: Request) -> dict:
     auth_header = request.headers.get("Authorization")
     if not auth_header or not auth_header.startswith("Bearer "):
@@ -431,6 +454,7 @@ async def register(user_data: UserCreate):
         "avatar_url": None,
         "location": None,
         "bio": None,
+        "phone_number": user_data.phone_number,
         "phone_verified": False,
         "id_verified": False,
         "total_earnings": 0.0,
@@ -444,6 +468,7 @@ async def register(user_data: UserCreate):
         email=user_data.email,
         name=user_data.name,
         created_at=user_doc["created_at"],
+        phone_number=user_data.phone_number,
         phone_verified=False,
         id_verified=False,
         total_earnings=0.0,
@@ -508,6 +533,13 @@ class PhoneVerifyRequest(BaseModel):
 class PhoneVerifyCode(BaseModel):
     phone_number: str
     code: str
+
+@api_router.get("/auth/phone/status")
+async def phone_verification_status(current_user: dict = Depends(get_current_user)):
+    return {
+        "sms_configured": bool(twilio_client and TWILIO_PHONE_NUMBER),
+        "phone_verified": bool(current_user.get("phone_verified")),
+    }
 
 @api_router.post("/auth/phone/send-code")
 async def send_phone_verification_code(
@@ -983,6 +1015,23 @@ async def create_booking(
     }
     
     await db.bookings.insert_one(booking_doc)
+
+    await create_system_message(
+        recipient_id=current_user["id"],
+        listing_id=booking_data.listing_id,
+        content=(
+            f"Booking request created for '{listing['title']}'. Next step: complete secure payment to confirm. "
+            "You'll receive owner contact details after payment."
+        ),
+    )
+    await create_system_message(
+        recipient_id=listing["owner_id"],
+        listing_id=booking_data.listing_id,
+        content=(
+            f"New booking request from {current_user['name']} for '{listing['title']}' "
+            f"({booking_data.start_date} to {booking_data.end_date})."
+        ),
+    )
     return BookingResponse(**booking_doc)
 
 @api_router.get("/bookings/my", response_model=List[BookingResponse])
@@ -991,7 +1040,19 @@ async def get_my_bookings(current_user: dict = Depends(get_current_user)):
         {"renter_id": current_user["id"]},
         {"_id": 0}
     ).sort("created_at", -1).to_list(100)
-    return [BookingResponse(**b) for b in bookings]
+    if not bookings:
+        return []
+    owner_ids = list({b["owner_id"] for b in bookings if b.get("owner_id")})
+    owners = await db.users.find({"id": {"$in": owner_ids}}, {"_id": 0, "id": 1, "phone_number": 1, "phone_verified": 1}).to_list(200)
+    owners_by_id = {o["id"]: o for o in owners}
+    enriched = []
+    for b in bookings:
+        if b.get("status") in ("paid", "completed"):
+            owner = owners_by_id.get(b.get("owner_id"))
+            if owner and owner.get("phone_verified") and owner.get("phone_number"):
+                b["counterparty_phone"] = owner["phone_number"]
+        enriched.append(BookingResponse(**b))
+    return enriched
 
 @api_router.get("/bookings/requests", response_model=List[BookingResponse])
 async def get_booking_requests(current_user: dict = Depends(get_current_user)):
@@ -999,7 +1060,19 @@ async def get_booking_requests(current_user: dict = Depends(get_current_user)):
         {"owner_id": current_user["id"]},
         {"_id": 0}
     ).sort("created_at", -1).to_list(100)
-    return [BookingResponse(**b) for b in bookings]
+    if not bookings:
+        return []
+    renter_ids = list({b["renter_id"] for b in bookings if b.get("renter_id")})
+    renters = await db.users.find({"id": {"$in": renter_ids}}, {"_id": 0, "id": 1, "phone_number": 1, "phone_verified": 1}).to_list(200)
+    renters_by_id = {r["id"]: r for r in renters}
+    enriched = []
+    for b in bookings:
+        if b.get("status") in ("paid", "completed"):
+            renter = renters_by_id.get(b.get("renter_id"))
+            if renter and renter.get("phone_verified") and renter.get("phone_number"):
+                b["counterparty_phone"] = renter["phone_number"]
+        enriched.append(BookingResponse(**b))
+    return enriched
 
 @api_router.get("/bookings/{booking_id}", response_model=BookingResponse)
 async def get_booking(booking_id: str, current_user: dict = Depends(get_current_user)):
@@ -1261,11 +1334,16 @@ async def send_message(
         })
         has_paid_booking = paid_booking is not None
     
-    # Filter contact info if no paid booking
+    # Block renter/owner chat before payment for listing-linked conversations.
+    # Communication opens after the booking is paid.
+    if message_data.listing_id and not has_paid_booking:
+        raise HTTPException(
+            status_code=403,
+            detail="Messaging is available after payment is completed."
+        )
+
     content = message_data.content
     was_filtered = False
-    if not has_paid_booking:
-        content, was_filtered = filter_contact_info(content)
     
     message_id = str(uuid.uuid4())
     message_doc = {
@@ -1478,6 +1556,28 @@ async def get_payment_status(
                 {"id": transaction["booking_id"]},
                 {"$set": {"status": "paid", "escrow_status": "held"}}
             )
+            booking = await db.bookings.find_one({"id": transaction["booking_id"]}, {"_id": 0})
+            if booking:
+                owner = await db.users.find_one({"id": booking["owner_id"]}, {"_id": 0, "phone_number": 1, "phone_verified": 1})
+                renter = await db.users.find_one({"id": booking["renter_id"]}, {"_id": 0, "phone_number": 1, "phone_verified": 1})
+                owner_phone = owner.get("phone_number") if owner and owner.get("phone_verified") else None
+                renter_phone = renter.get("phone_number") if renter and renter.get("phone_verified") else None
+                await create_system_message(
+                    recipient_id=booking["renter_id"],
+                    listing_id=booking["listing_id"],
+                    content=(
+                        f"Payment confirmed for '{booking.get('listing_title', 'your booking')}'. "
+                        f"{'Owner phone: ' + owner_phone if owner_phone else 'Owner phone will appear once verified.'}"
+                    ),
+                )
+                await create_system_message(
+                    recipient_id=booking["owner_id"],
+                    listing_id=booking["listing_id"],
+                    content=(
+                        f"Renter payment received for '{booking.get('listing_title', 'your listing')}'. "
+                        f"{'Renter phone: ' + renter_phone if renter_phone else 'Renter phone will appear once verified.'}"
+                    ),
+                )
             
             # DON'T credit owner yet - money is held in escrow
             # Owner gets paid when renter confirms receipt
@@ -1527,6 +1627,26 @@ async def stripe_webhook(request: Request):
                     
                     booking = await db.bookings.find_one({"id": transaction["booking_id"]})
                     if booking:
+                        owner = await db.users.find_one({"id": booking["owner_id"]}, {"_id": 0, "phone_number": 1, "phone_verified": 1})
+                        renter = await db.users.find_one({"id": booking["renter_id"]}, {"_id": 0, "phone_number": 1, "phone_verified": 1})
+                        owner_phone = owner.get("phone_number") if owner and owner.get("phone_verified") else None
+                        renter_phone = renter.get("phone_number") if renter and renter.get("phone_verified") else None
+                        await create_system_message(
+                            recipient_id=booking["renter_id"],
+                            listing_id=booking["listing_id"],
+                            content=(
+                                f"Payment confirmed for '{booking.get('listing_title', 'your booking')}'. "
+                                f"{'Owner phone: ' + owner_phone if owner_phone else 'Owner phone will appear once verified.'}"
+                            ),
+                        )
+                        await create_system_message(
+                            recipient_id=booking["owner_id"],
+                            listing_id=booking["listing_id"],
+                            content=(
+                                f"Renter payment received for '{booking.get('listing_title', 'your listing')}'. "
+                                f"{'Renter phone: ' + renter_phone if renter_phone else 'Renter phone will appear once verified.'}"
+                            ),
+                        )
                         logging.info(f"Webhook: Payment received for booking {transaction['booking_id']} - funds held in escrow")
         
         return {"status": "ok"}

@@ -34,6 +34,7 @@ export default function SettingsPage() {
   const [connectingStripe, setConnectingStripe] = useState(false);
   const [payoutSummary, setPayoutSummary] = useState(null);
   const [stripeStatus, setStripeStatus] = useState(null);
+  const [smsConfigured, setSmsConfigured] = useState(true);
 
   // Profile form
   const [name, setName] = useState('');
@@ -58,6 +59,9 @@ export default function SettingsPage() {
       fetchStripeStatus();
     } else if (searchParams.get('refresh') === 'true') {
       toast.info('Please complete your Stripe account setup');
+    }
+    if (searchParams.get('onboarding') === '1') {
+      toast.info('Finish setup: verify phone and connect Stripe to complete your account.');
     }
   }, [searchParams]);
 
@@ -84,6 +88,9 @@ export default function SettingsPage() {
 
       // Fetch Stripe Connect status
       fetchStripeStatus();
+      verificationAPI.getPhoneStatus()
+        .then((res) => setSmsConfigured(Boolean(res.data?.sms_configured)))
+        .catch(() => setSmsConfigured(false));
     }
   }, [user]);
 
@@ -297,16 +304,69 @@ export default function SettingsPage() {
           </div>
         </div>
 
-        {/* Phone Verification Form - Coming Soon */}
+        {/* Phone Verification Form */}
         {!user.phone_verified && (
-          <div className="bg-white rounded-2xl border border-stone-200 p-6 mb-6 opacity-60">
+          <div className="bg-white rounded-2xl border border-stone-200 p-6 mb-6">
             <h2 className="text-lg font-semibold text-stone-900 mb-4 font-heading">
               Phone Verification
             </h2>
             <p className="text-stone-600 text-sm mb-4">
-              Phone verification coming soon! Verified users will get a badge on their profile, building trust with renters and owners.
+              Verify your phone to share contact details after payment confirmation.
             </p>
-            <Badge className="bg-amber-100 text-amber-700">Coming Soon</Badge>
+            <div className="space-y-3">
+              <div>
+                <Label htmlFor="verify-phone">Phone number</Label>
+                <Input
+                  id="verify-phone"
+                  type="tel"
+                  placeholder="+61..."
+                  value={phoneNumber}
+                  onChange={(e) => setPhoneNumber(e.target.value)}
+                  className="mt-1 rounded-xl"
+                />
+              </div>
+              {!codeSent ? (
+                <>
+                  <Button
+                    onClick={handleSendCode}
+                    disabled={sendingCode || !smsConfigured}
+                    className="w-full rounded-xl"
+                  >
+                    {sendingCode ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <Send className="h-4 w-4 mr-2" />}
+                    {smsConfigured ? 'Send verification code' : 'SMS service not configured'}
+                  </Button>
+                  {!smsConfigured && (
+                    <p className="text-xs text-amber-700">
+                      SMS verification is currently unavailable. Add Twilio env vars on the backend:
+                      <code className="ml-1">TWILIO_ACCOUNT_SID</code>,
+                      <code className="ml-1">TWILIO_AUTH_TOKEN</code>,
+                      <code className="ml-1">TWILIO_PHONE_NUMBER</code>.
+                    </p>
+                  )}
+                </>
+              ) : (
+                <>
+                  <div>
+                    <Label htmlFor="verify-code">Verification code</Label>
+                    <Input
+                      id="verify-code"
+                      value={verificationCode}
+                      onChange={(e) => setVerificationCode(e.target.value)}
+                      className="mt-1 rounded-xl"
+                      placeholder="Enter code"
+                    />
+                  </div>
+                  <Button
+                    onClick={handleVerifyCode}
+                    disabled={verifying}
+                    className="w-full rounded-xl bg-[#E05D44] hover:bg-[#C54E36]"
+                  >
+                    {verifying ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <CheckCircle className="h-4 w-4 mr-2" />}
+                    Verify phone
+                  </Button>
+                </>
+              )}
+            </div>
           </div>
         )}
 

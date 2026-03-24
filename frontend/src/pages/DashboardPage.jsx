@@ -20,6 +20,8 @@ import {
   DollarSign,
   Shield,
   AlertTriangle,
+  Phone,
+  CreditCard,
 } from 'lucide-react';
 
 export default function DashboardPage() {
@@ -168,6 +170,30 @@ export default function DashboardPage() {
             </Button>
           </Link>
         </div>
+
+        {/* Stats - Clickable */}
+        {(!user.phone_verified || !user.stripe_connected) && (
+          <div className="bg-amber-50 border border-amber-200 rounded-2xl p-4 mb-6">
+            <p className="text-amber-900 font-medium mb-2">Complete your account setup</p>
+            <div className="flex flex-wrap gap-2 text-sm">
+              {!user.phone_verified && (
+                <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-white border border-amber-200 text-amber-800">
+                  <Phone className="h-3.5 w-3.5" />
+                  Verify phone
+                </span>
+              )}
+              {!user.stripe_connected && (
+                <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-white border border-amber-200 text-amber-800">
+                  <CreditCard className="h-3.5 w-3.5" />
+                  Connect Stripe
+                </span>
+              )}
+              <Link to="/settings" className="inline-flex items-center px-3 py-1 rounded-full bg-[#E05D44] text-white hover:bg-[#C54E36]">
+                Finish setup
+              </Link>
+            </div>
+          </div>
+        )}
 
         {/* Stats - Clickable */}
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
@@ -349,6 +375,11 @@ export default function DashboardPage() {
                             {booking.status === 'paid' && getEscrowBadge(booking.escrow_status, booking.receipt_confirmed)}
                           </div>
                         </div>
+                        {booking.counterparty_phone && (
+                          <p className="text-sm text-stone-700 mt-2">
+                            Owner contact: <span className="font-medium">{booking.counterparty_phone}</span>
+                          </p>
+                        )}
                       </div>
                     </div>
                     
@@ -452,6 +483,11 @@ export default function DashboardPage() {
                             {formatPrice(request.total_price)}
                           </span>
                         </div>
+                        {request.counterparty_phone && (
+                          <p className="text-sm text-stone-700 mb-3">
+                            Renter contact: <span className="font-medium">{request.counterparty_phone}</span>
+                          </p>
+                        )}
 
                         {request.status === 'pending' && (
                           <div className="flex gap-2">

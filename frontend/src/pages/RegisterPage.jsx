@@ -14,6 +14,7 @@ export default function RegisterPage() {
 
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
+  const [phoneNumber, setPhoneNumber] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
 
@@ -28,9 +29,9 @@ export default function RegisterPage() {
     setLoading(true);
 
     try {
-      await register(name, email, password);
-      toast.success('Account created successfully!');
-      navigate('/');
+      await register(name, email, password, phoneNumber);
+      toast.success('Account created successfully! Complete phone + payout setup next.');
+      navigate('/settings?onboarding=1');
     } catch (error) {
       console.error('Register error:', error);
       toast.error(formatApiError(error, 'Registration failed'));
@@ -79,6 +80,22 @@ export default function RegisterPage() {
                 className="h-12 rounded-xl"
                 data-testid="email-input"
               />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="phone">Phone number</Label>
+              <Input
+                id="phone"
+                type="tel"
+                placeholder="+61..."
+                value={phoneNumber}
+                onChange={(e) => setPhoneNumber(e.target.value)}
+                className="h-12 rounded-xl"
+                data-testid="phone-input"
+              />
+              <p className="text-xs text-stone-500">
+                Used for booking contact after payment and verification
+              </p>
             </div>
 
             <div className="space-y-2">

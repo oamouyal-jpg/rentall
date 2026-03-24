@@ -6,7 +6,7 @@ import { Button } from '../components/ui/button';
 import { Input } from '../components/ui/input';
 import ListingCard from '../components/ListingCard';
 import CategoryCard from '../components/CategoryCard';
-import { Search, ArrowRight, Shield, Clock, DollarSign } from 'lucide-react';
+import { Search, ArrowRight, Shield, Clock, DollarSign, PlusCircle } from 'lucide-react';
 
 export default function HomePage() {
   const [searchQuery, setSearchQuery] = useState('');
@@ -84,6 +84,18 @@ export default function HomePage() {
                 {t('common.search')}
               </Button>
             </form>
+            <div className="mt-3">
+              <Link to="/create-listing">
+                <Button
+                  variant="outline"
+                  className="h-12 rounded-full bg-white/10 text-white border-white/30 hover:bg-white/20 hover:text-white"
+                  data-testid="hero-list-item-btn"
+                >
+                  <PlusCircle className="h-4 w-4 mr-2" />
+                  List an item
+                </Button>
+              </Link>
+            </div>
 
             {/* Quick Categories */}
             <div className="flex flex-wrap gap-2 mt-6">
