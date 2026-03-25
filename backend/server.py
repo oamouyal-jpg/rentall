@@ -578,7 +578,14 @@ async def send_phone_verification_code(
         return {"message": "Verification code sent", "sid": message.sid}
     except Exception as e:
         logging.error(f"Twilio error: {e}")
-        raise HTTPException(status_code=500, detail="Failed to send SMS")
+        err_code = getattr(e, "code", None)
+        err_msg = str(e)
+        detail = "Failed to send SMS"
+        if err_code:
+            detail = f"Failed to send SMS (Twilio {err_code})"
+        if err_msg:
+            detail = f"{detail}: {err_msg[:180]}"
+        raise HTTPException(status_code=400, detail=detail)
 
 @api_router.post("/auth/phone/verify")
 async def verify_phone_code(
